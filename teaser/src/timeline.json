@@ -1,0 +1,124 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "total": 2554,
+  "scenes": {
+    "S0": {
+      "start": 0,
+      "dur": 150
+    },
+    "S1": {
+      "start": 150,
+      "dur": 150
+    },
+    "S2": {
+      "start": 300,
+      "dur": 270
+    },
+    "S3": {
+      "start": 570,
+      "dur": 180
+    },
+    "S4": {
+      "start": 750,
+      "dur": 616
+    },
+    "S5": {
+      "start": 1366,
+      "dur": 240
+    },
+    "S6": {
+      "start": 1606,
+      "dur": 431
+    },
+    "S7": {
+      "start": 2037,
+      "dur": 180
+    },
+    "S8": {
+      "start": 2217,
+      "dur": 150
+    },
+    "S9": {
+      "start": 2367,
+      "dur": 187
+    }
+  },
+  "voice": [
+    {
+      "id": "answer",
+      "file": "audio/answer.wav",
+      "start": 940,
+      "dur": 381
+    },
+    {
+      "id": "meeting",
+      "file": "audio/meeting.wav",
+      "start": 1911,
+      "dur": 81
+    },
+    {
+      "id": "outro",
+      "file": "audio/outro.wav",
+      "start": 2422,
+      "dur": 62
+    }
+  ],
+  "sfx": [
+    {
+      "file": "audio/sfx/card-slide-1.ogg",
+      "start": 158,
+      "vol": 0.5
+    },
+    {
+      "file": "audio/sfx/impactSoft_medium_001.ogg",
+      "start": 304,
+      "vol": 0.6
+    },
+    {
+      "file": "audio/sfx/click_003.ogg",
+      "start": 806,
+      "vol": 0.7
+    },
+    {
+      "file": "audio/sfx/impactSoft_medium_001.ogg",
+      "start": 935,
+      "vol": 0.5
+    },
+    {
+      "file": "audio/sfx/card-slide-1.ogg",
+      "start": 1446,
+      "vol": 0.5
+    },
+    {
+      "file": "audio/sfx/card-slide-1.ogg",
+      "start": 1526,
+      "vol": 0.5
+    },
+    {
+      "file": "audio/sfx/click_003.ogg",
+      "start": 1686,
+      "vol": 0.6
+    },
+    {
+      "file": "audio/sfx/impactSoft_medium_001.ogg",
+      "start": 2223,
+      "vol": 0.5
+    },
+    {
+      "file": "audio/sfx/bong_001.ogg",
+      "start": 2383,
+      "vol": 0.7
+    }
+  ],
+  "music": {
+    "file": "audio/music.mp3",
+    "vol": 0.3
+  },
+  "voiceEngine": {
+    "answer": "kokoro am_adam",
+    "meeting": "kokoro am_adam",
+    "outro": "existing"
+  }
+}

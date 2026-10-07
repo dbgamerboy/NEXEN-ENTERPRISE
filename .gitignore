@@ -10,3 +10,10 @@ vectors.jsonl
 !data/sample/vectors.sample.jsonl
 docs/video/*.webm
 docs/video/_narration/
+
+# teaser build artifacts
+teaser/node_modules/
+teaser/.venv/
+teaser/out/
+teaser/public/audio/music.mp3
+brag-output/
