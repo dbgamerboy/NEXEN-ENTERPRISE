@@ -1,6 +1,6 @@
-# NEXEN ENTERPRISE V1: guide
+# NEXEN ENTERPRISE: guide
 
-Open `http://127.0.0.1:8794/v2/` after `python backend/server.py` (or open `frontend/v2/index.html` directly). All data is demo data and every MARVIN answer is simulated.
+Open `http://127.0.0.1:8794/` after `python backend/server.py` (or open `frontend/index.html` directly). All data is demo data and every MARVIN answer is simulated.
 
 ## The 90 second demo
 
@@ -49,13 +49,12 @@ In Corporate, the MEDIUM priority item, the **Next meeting** card and MARVIN's "
 
 Five steps with Back, Next, Skip Tutorial and Try MARVIN. It opens on first visit and can be restarted from Restart tutorial, Settings, or the landing link.
 
-| Welcome | Workspace | MARVIN |
+| Construction workspace | MARVIN | Corporate meeting |
 |---|---|---|
-| ![](img/v2/02-tutorial-marvin-step.png) | ![](img/v2/03-construction-home-1080p.png) | ![](img/v2/05-marvin-response-construction.png) |
+| ![](../teaser/public/captures/02-con-home.png) | ![](../teaser/public/captures/09-marvin-answer.png) | ![](../teaser/public/captures/13-meet-brief.png) |
 
-## Screenshots
+## Visual evidence
 
-Desktop 1920x1080: [landing](img/v2/01-landing-1080p.png), [Construction](img/v2/03-construction-home-1080p.png), [Corporate](img/v2/03-corporate-home-1080p.png), [Real Estate](img/v2/03-real-estate-home-1080p.png), [file preview](img/v2/04-construction-file-preview.png), [MARVIN listening](img/v2/06-marvin-listening.png), [future development](img/v2/07-future-development.png).
-Phone 390x844: [landing](img/v2/09-narrow-landing.png), [home](img/v2/11-narrow-home.png), [menu](img/v2/12-narrow-menu.png), [MARVIN](img/v2/13-narrow-marvin.png).
+Deterministic product captures are committed under `teaser/public/captures/`. Browser QA also generates a larger screenshot set under `docs/img/` locally; those generated QA images are intentionally excluded from Git.
 
 Evidence for every claim is in [DEMO-RECEIPT.md](DEMO-RECEIPT.md).

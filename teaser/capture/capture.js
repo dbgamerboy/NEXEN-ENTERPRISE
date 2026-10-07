@@ -1,4 +1,4 @@
-// Deterministic product captures of NEXEN ENTERPRISE V1 for the Remotion teaser.
+// Deterministic product captures of NEXEN ENTERPRISE for the Remotion teaser.
 // Real frontend, real clicks. Writes public/captures/*.png (3840x2160 desktop, 1170x2532 phone) and manifest.json
 // with element boxes (CSS px) so callouts land exactly on the real UI.
 // Run: node capture/capture.js   (env: PYTHON, PLAYWRIGHT_PATH, PW_CHANNEL=chrome)
@@ -26,8 +26,6 @@ async function main() {
   const srv = spawn(PY, ["-B", path.join(REPO, "backend", "server.py")], { env: { ...process.env, NEXEN_PORT: String(PORT) }, stdio: "ignore" });
   let base = `http://127.0.0.1:${PORT}/`;
   for (let i = 0; i < 40; i++) { try { if ((await fetch(base)).ok) break; } catch (e) { /* wait */ } await new Promise((r) => setTimeout(r, 150)); }
-  // the business workspace app lives at /v2/ in older checkouts and at the root in newer ones
-  for (const cand of [`http://127.0.0.1:${PORT}/`, `http://127.0.0.1:${PORT}/v2/`]) { try { const t = await (await fetch(cand)).text(); if (t.includes('id="cards"') && t.includes("enter")) { base = cand; break; } } catch (e) { /* next */ } }
   console.log("capturing from", base);
   const browser = await chromium.launch(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {});
   try {

@@ -8,6 +8,8 @@ node_modules/
 dbg_*
 vectors.jsonl
 !data/sample/vectors.sample.jsonl
+docs/img/
+docs/video/*.mp4
 docs/video/*.webm
 docs/video/_narration/
 
@@ -16,4 +18,5 @@ teaser/node_modules/
 teaser/.venv/
 teaser/out/
 teaser/public/audio/music.mp3
+teaser/public/audio/sfx/
 brag-output/

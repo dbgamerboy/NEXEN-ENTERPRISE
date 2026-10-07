@@ -1,85 +1,165 @@
-﻿# NEXEN ENTERPRISE V1
+<p align="center">
+  <img src="frontend/assets/logo.svg" width="96" alt="NEXEN logo">
+</p>
 
-## CANONICAL DEMO — BUSINESS / INVESTOR VERSION
+<h1 align="center">NEXEN ENTERPRISE</h1>
 
-**Use this demo for presentations. Do not infer the current demo from folder version numbers.**
+<p align="center"><strong>Your Business. Connected. Intelligent. Executable.</strong></p>
 
-| Item | Canonical value |
+<p align="center">One operating workspace for files, priorities, automation, AI workers, and MARVIN.</p>
+
+<p align="center">
+  <img alt="Backend tests" src="https://img.shields.io/badge/backend-24%2F24%20passing-3ddc97">
+  <img alt="Browser QA" src="https://img.shields.io/badge/browser%20QA-106%2F106%20passing-4f8cff">
+  <img alt="Interaction sweep" src="https://img.shields.io/badge/interactions-514%2F514%20passing-73c7ff">
+  <img alt="Demo data" src="https://img.shields.io/badge/data-demo%20%2F%20simulated-ffb13b">
+</p>
+
+---
+
+<p align="center">
+  <img src="teaser/public/captures/02-con-home.png" alt="NEXEN ENTERPRISE Construction workspace" width="100%">
+</p>
+
+## See the product, not the plumbing
+
+NEXEN ENTERPRISE is a premium business-operations demo showing one NEXEN shell adapting to three different operating environments:
+
+| Construction | Corporate | Real Estate |
+|---|---|---|
+| ![Construction](teaser/public/captures/02-con-home.png) | ![Corporate](teaser/public/captures/11-corp-home.png) | ![Real Estate](teaser/public/captures/12-re-home.png) |
+| RFIs · change orders · safety · site operations | meetings · budgets · vendors · executive operations | listings · offers · inspections · disclosures · closings |
+
+The shell stays consistent. The operating context changes.
+
+**MARVIN** sits across the experience as the operator-facing AI interface: open the workspace, see what matters, inspect the evidence, and ask what to do next.
+
+> **Demo truth:** this repository uses demo data, simulated responses, prototype browser voice, and clearly labeled future-development concepts. Mocked capabilities are not represented as live production integrations.
+
+## MARVIN
+
+<p align="center">
+  <img src="teaser/public/captures/09-marvin-answer.png" alt="MARVIN answering inside NEXEN" width="84%">
+</p>
+
+In the current demo MARVIN can:
+
+- surface the highest-priority operational items,
+- summarize context-specific mock documents,
+- answer industry-aware scripted questions,
+- demonstrate microphone interaction and browser speech,
+- participate in the simulated Corporate meeting flow.
+
+## Business event → useful outcome
+
+| Meeting briefing | Live capture | Structured follow-up |
+|---|---|---|
+| ![Briefing](teaser/public/captures/13-meet-brief.png) | ![Live meeting](teaser/public/captures/14-meet-live-5.png) | ![Notes](teaser/public/captures/15-meet-notes.png) |
+
+This demonstrates the core UX principle: **the complexity belongs in the engine, not in the interface.**
+
+## Responsive product
+
+| Mobile workspace | Mobile MARVIN |
 |---|---|
-| Audience | Business owners, operators, investors |
-| Source | `frontend/v2/` |
-| Primary route | `/v2/#/construction` |
-| Local demo | `http://127.0.0.1:8795/v2/#/construction` |
-| Public demo | `https://dbgamerboy.github.io/NEXEN-ENTERPRISE-V1-PAGES/v2/#/construction` |
-| Data | Demo data + simulated responses only |
-| Identity file | `DEMO_TARGET.json` |
+| ![Mobile workspace](teaser/public/captures/21-phone-home.png) | ![Mobile MARVIN](teaser/public/captures/24-phone-marvin.png) |
 
-The business demo is one NEXEN shell with **Construction, Corporate and Real Estate** workspaces, file previews, tasks, automation, workers, analytics, MARVIN, a guided tour, and clearly labeled future-development concepts.
+Verified layouts include 1920×1080 desktop, 1366×768 laptop, and 390×844 mobile/narrow.
 
-> **IMPORTANT:** the older gamified triple-screen HUD in the root of `frontend/` is a **legacy/internal demo**. It is **not** the investor/business presentation target and must not be deployed or presented as the canonical NEXEN demo.
+## Watch it
 
-### Run the canonical demo locally
+**[▶ NEXEN ENTERPRISE guided tutorial](https://github.com/dbgamerboy/NEXEN-ENTERPRISE/releases/download/demo/NEXEN-ENTERPRISE-tutorial.mp4)**
 
-```powershell
-$env:NEXEN_PORT = "8795"
-python -B backend/server.py
-```
+**[▶ NEXEN ENTERPRISE cinematic teaser](https://github.com/dbgamerboy/NEXEN-ENTERPRISE/releases/download/demo/NEXEN-ENTERPRISE-teaser.mp4)**
 
-Then open:
+The teaser is built with **Remotion + Playwright + FFmpeg** using deterministic captures of the actual frontend rather than replacement mock UI.
 
-```text
-http://127.0.0.1:8795/v2/#/construction
-```
+## Verified demo state
 
-The backend defaults to port 8794 when `NEXEN_PORT` is not set.
+| Check | Result |
+|---|---:|
+| Python backend suite | **24 / 24 PASS** |
+| Browser product QA | **106 / 106 PASS** |
+| Exhaustive buttons + checkboxes | **514 / 514 PASS** |
+| Browser/page errors in exhaustive sweep | **0** |
+| Broken asset/request failures in browser QA | **0** |
 
-### Demo evidence and QA
+Evidence: [`docs/DEMO-RECEIPT.md`](docs/DEMO-RECEIPT.md)
 
-- Guide: [docs/DEMO-GUIDE.md](docs/DEMO-GUIDE.md)
-- Evidence receipt: [docs/DEMO-RECEIPT.md](docs/DEMO-RECEIPT.md)
-- Tutorial video: [docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4](docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4)
-- Construction screenshot: [docs/img/v2/03-construction-home-1080p.png](docs/img/v2/03-construction-home-1080p.png)
+## Start locally
 
 ```bash
+python backend/server.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:8794/
+```
+
+The frontend is also static-friendly and can be opened directly from `frontend/index.html`.
+
+## Verify
+
+```bash
+python -m unittest discover -s tests -v
 node tests/demo_qa.js
 node tests/demo_buttons.js
 node tools/demo_receipt.js
 ```
 
-The most recent repository receipts record **106 browser QA checks** and **514/514 button and checkbox checks** passing for the workspace demo.
+Generated QA screenshots are written under `docs/img/` locally and are intentionally not stored in Git.
 
-## Repository map
+## Canonical repository
 
 ```text
-frontend/v2/      CANONICAL business/investor demo
-frontend/assets/  shared branding assets
-frontend/         legacy/internal HUD files also remain here for now
-backend/          local demo server + demo API
-data/             synthetic sample data
-docs/             demo guide, evidence, screenshots and tutorial video
-tests/            backend/browser/demo QA
-tools/            demo recording and documentation helpers
+frontend/        one customer-facing product
+backend/         bounded local demo server / API
+docs/            source of truth + verification evidence
+tests/           backend + browser verification
+tools/           reproducible demo / receipt tooling
+teaser/          Remotion source + deterministic product captures
+.github/         CI + Pages deployment
 ```
 
-## Deployment rule
+Normal fixes happen **in place**. Git stores history. Theme changes, metadata fixes, GUI polish, responsive fixes, and documentation updates do not create parallel product trees.
 
-The private repository is the **source of truth**.
+## Platform thesis
 
-GitHub Pages is not available for this private repository on the current GitHub plan, so the public repository `dbgamerboy/NEXEN-ENTERPRISE-V1-PAGES` is a **deployment artifact only**. It must contain only the static business-demo assets required to present `frontend/v2/`; it is not a second source tree.
+The broader NEXEN model is:
 
-**Do not create a V3/V4 demo folder to supersede this. Update the canonical target only after `DEMO_TARGET.json` is deliberately changed.**
+```text
+USER
+  ↓
+MARVIN
+  ↓
+NEXEN HARNESS / CONTROL PLANE
+  ↓
+AI · PRODUCTS · WORKFLOWS · WINDOWS AUTOMATION · APIs · WORKERS
+  ↓
+BUSINESS / PERSONAL CONTEXT
+  ↓
+RESULTS · EVIDENCE · ALERTS · DECISIONS
+```
 
-## Backend
+Standalone products do not need to be rewritten into NEXEN. They can remain powerful independent products and expose a contract that NEXEN can discover, govern, invoke, and present through MARVIN.
 
-`backend/server.py` serves the static frontend and the local demo API:
+Personal NEXEN and public NEXEN are intentionally different:
 
-| Endpoint | Purpose |
-|---|---|
-| `GET /api/health` | Demo mode, vector count/source, runnable modules |
-| `GET /api/search?q=` | Search sample or configured vector data |
-| `POST /api/roi` | Workflow ROI demo |
-| `POST /api/breaker` | Circuit-breaker/fallback demo |
-| `POST /api/chunk` | Text chunking demo |
-| `POST /api/module/run` | Allowlisted local module runner |
+- **Personal NEXEN** is the high-power internal command center.
+- **Public NEXEN** productizes proven capabilities into clear customer experiences.
+- **NEXEN LYFE** represents the personal schedule / routine / priority operating context in the broader platform thesis.
 
-The server binds to `127.0.0.1`. Demo UI data is synthetic unless the owner explicitly starts the server with approved local data/module paths.
+## Source of truth
+
+For product boundaries, harness architecture, MARVIN’s role, anti-spaghetti rules, media direction, verification policy, and productization principles:
+
+**[NEXEN ENTERPRISE — SOURCE OF TRUTH](docs/NEXEN-ENTERPRISE-SOURCE-OF-TRUTH.md)**
+
+---
+
+<p align="center">
+  <strong>NEXEN ENTERPRISE</strong><br>
+  One product. One canonical frontend. One canonical URL. Git owns history.
+</p>

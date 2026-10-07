@@ -184,10 +184,7 @@ class ApiTests(unittest.TestCase):
     def test_static_and_traversal(self):
         code, body = self.call("/")
         self.assertEqual(code, 200)
-        self.assertIn(b"NEXEN Demo Build", body)
-        code, body = self.call("/v2/")
-        self.assertEqual(code, 200)
-        self.assertIn(b"NEXEN Enterprise V1", body)
+        self.assertIn(b"NEXEN Enterprise", body)
         self.assertEqual(self.call("/../backend/server.py")[0], 404)
         self.assertEqual(self.call("/%2e%2e/backend/server.py")[0], 404)
 

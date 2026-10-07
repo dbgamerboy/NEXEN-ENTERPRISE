@@ -1,6 +1,6 @@
 ---
 name: mock-industry-factory
-description: Add or edit a mock industry workspace in frontend/v2/data.js.
+description: Add or edit a mock industry workspace in frontend/data.js.
 ---
 
 One object per industry: workspace, KPIs, priority items, 8 files with metadata and previews, 5 workers, activity, tasks, MARVIN suggestions and answers.

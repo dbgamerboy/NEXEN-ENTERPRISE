@@ -71,10 +71,10 @@ const Backdrop: React.FC<{ shot: string; cam?: { x: number; y: number }; tint?: 
   );
 };
 
-const Chip: React.FC<{ n: string; text: string }> = ({ n, text }) => {
+const Chip: React.FC<{ n: string; text: string; top?: boolean }> = ({ n, text, top }) => {
   const f = useF(); const p = spring({ frame: f - 6, fps: 30, config: { damping: 200 } });
   return (
-    <div style={{ position: "absolute", left: 56, top: 48, display: "flex", alignItems: "center", gap: 14, padding: "12px 20px 12px 14px", borderRadius: 999, background: "rgba(14,16,22,.72)", border: "1px solid rgba(255,255,255,.12)", backdropFilter: "blur(14px)", opacity: p, transform: `translateY(${(1 - p) * -14}px)`, fontFamily, color: TXT, zIndex: 20 }}>
+    <div style={{ position: "absolute", left: 56, ...(top ? { top: 48 } : { bottom: 48 }), display: "flex", alignItems: "center", gap: 14, padding: "12px 20px 12px 14px", borderRadius: 999, background: "rgba(14,16,22,.72)", border: "1px solid rgba(255,255,255,.12)", backdropFilter: "blur(14px)", opacity: p, transform: `translateY(${(1 - p) * (top ? -14 : 14)}px)`, fontFamily, color: TXT, zIndex: 20 }}>
       <span style={{ fontWeight: 800, fontSize: 16, color: "#06101f", background: ACC, borderRadius: 999, padding: "4px 10px" }}>{n}</span>
       <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: ".16em" }}>{text}</span>
     </div>
@@ -97,10 +97,10 @@ const Callout: React.FC<{ co: CO; t: { s: number; tx: number; ty: number } }> = 
   return (
     <>
       <div style={{ position: "absolute", left: r.x - pad, top: r.y - pad, width: r.w + pad * 2, height: r.h + pad * 2, borderRadius: 16, border: `3px solid ${ACC}`, boxShadow: `0 0 0 6px ${ACC}22, 0 0 40px ${ACC}66`, opacity: o, transform: `scale(${0.96 + 0.04 * o})`, zIndex: 15 }} />
-      <div style={{ position: "absolute", left: lx, top: ly, display: "flex", alignItems: "center", gap: 12, padding: "14px 22px 14px 14px", borderRadius: 14, background: "rgba(10,12,17,.92)", border: `1px solid ${ACC}88`, boxShadow: "0 18px 50px rgba(0,0,0,.55)", opacity: o, transform: `translateY(${(1 - o) * 14}px)`, fontFamily, color: TXT, fontWeight: 700, fontSize: 30, letterSpacing: "-.01em", zIndex: 16, maxWidth: lw + 120 }}>
+      {co.label && <div style={{ position: "absolute", left: lx, top: ly, display: "flex", alignItems: "center", gap: 12, padding: "14px 22px 14px 14px", borderRadius: 14, background: "rgba(10,12,17,.92)", border: `1px solid ${ACC}88`, boxShadow: "0 18px 50px rgba(0,0,0,.55)", opacity: o, transform: `translateY(${(1 - o) * 14}px)`, fontFamily, color: TXT, fontWeight: 700, fontSize: 30, letterSpacing: "-.01em", zIndex: 16, maxWidth: lw + 120 }}>
         {co.n != null && <span style={{ background: ACC, color: "#06101f", borderRadius: 999, minWidth: 34, height: 34, display: "grid", placeItems: "center", fontSize: 20, fontWeight: 800 }}>{co.n}</span>}
         <span>{co.label}</span>
-      </div>
+      </div>}
     </>
   );
 };
@@ -137,7 +137,7 @@ const VoiceRings: React.FC<{ rect: Rect; t: { s: number; tx: number; ty: number 
 };
 
 /* ---------- a captured screen with camera, parallax, callouts ---------- */
-const Product: React.FC<{ shot: string; kfs: KF[]; callouts?: CO[]; chip?: [string, string]; tilt?: boolean; tint?: string; children?: (t: { s: number; tx: number; ty: number }) => React.ReactNode }> = ({ shot, kfs, callouts = [], chip, tilt, tint, children }) => {
+const Product: React.FC<{ shot: string; kfs: KF[]; callouts?: CO[]; chip?: [string, string]; tilt?: boolean; tint?: string; chipTop?: boolean; children?: (t: { s: number; tx: number; ty: number }) => React.ReactNode }> = ({ shot, kfs, callouts = [], chip, tilt, tint, chipTop, children }) => {
   const f = useF(); const cam = camAt(kfs, f); const t = xf(cam);
   const ent = tilt ? 1 - spring({ frame: f, fps: 30, config: { damping: 200 }, durationInFrames: 40 }) : 0;
   return (
@@ -152,7 +152,7 @@ const Product: React.FC<{ shot: string; kfs: KF[]; callouts?: CO[]; chip?: [stri
       </AbsoluteFill>
       {callouts.map((co, i) => <Callout key={i} co={co} t={t} />)}
       {children && children(t)}
-      {chip && <Chip n={chip[0]} text={chip[1]} />}
+      {chip && <Chip n={chip[0]} text={chip[1]} top={chipTop} />}
     </AbsoluteFill>
   );
 };
@@ -175,7 +175,7 @@ const S0: React.FC = () => {
           const p = spring({ frame: f - 10 - i * 30, fps: 30, config: { damping: 22, stiffness: 120 } });
           return <div key={i} style={{ fontSize: 138, fontWeight: 800, letterSpacing: "-.035em", lineHeight: 1.04, color: c as string, opacity: p, transform: `translateY(${(1 - p) * 46}px)`, filter: `blur(${(1 - p) * 14}px)` }}>{w}</div>;
         })}
-        <div style={{ marginTop: 34, fontSize: 28, letterSpacing: ".34em", fontWeight: 700, color: SOFT, opacity: interpolate(f, [110, 135], [0, 1], clamp) }}>NEXEN ENTERPRISE V1</div>
+        <div style={{ marginTop: 34, fontSize: 28, letterSpacing: ".34em", fontWeight: 700, color: SOFT, opacity: interpolate(f, [110, 135], [0, 1], clamp) }}>NEXEN ENTERPRISE</div>
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -219,7 +219,7 @@ const S4: React.FC = () => {
   const orb = R("09-marvin-answer", "#d-h");
   const mic = R("07-marvin-listening", "#mic"), speak = R("09-marvin-answer", "[data-speak]");
   return (
-    <Product shot={shot} tint={ACC} chip={["04", "MEET MARVIN"]} tilt kfs={kfs}
+    <Product shot={shot} tint={ACC} chip={["04", "MEET MARVIN"]} chipTop tilt kfs={kfs}
       callouts={[
         { rect: R("06-marvin-ready", "#mic"), label: "Tap the mic, or type", from: 20, to: b + 50, side: "left", n: 1 },
         { rect: R("09-marvin-answer", "[data-speak]"), label: "Speak Response plays it aloud", from: voiceLocal + 20, to: dur - 20, side: "left", n: 2 }
@@ -229,6 +229,19 @@ const S4: React.FC = () => {
         <Karaoke tag="MARVIN · PROTOTYPE VOICE · SIMULATED RESPONSE" start={voiceLocal} dur={ans.dur} text="Good morning. Three items need your attention. Change Order 017 needs approval, plus $38,400. RFI 042 is 48 hours overdue. Start with Change Order 017." />
       </>}
     </Product>
+  );
+};
+
+const IndustryTitle: React.FC<{ name: string; ws: string; tint: string }> = ({ name, ws, tint }) => {
+  const f = useCurrentFrame(); const p = spring({ frame: f - 6, fps: 30, config: { damping: 20, stiffness: 120 } });
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 70, textAlign: "center", fontFamily, opacity: p, transform: `translateY(${(1 - p) * 30}px)`, zIndex: 25 }}>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 22, padding: "20px 44px", borderRadius: 22, background: "rgba(8,9,12,.88)", border: `1px solid ${tint}88`, boxShadow: `0 24px 70px rgba(0,0,0,.6), 0 0 60px ${tint}33` }}>
+        <span style={{ width: 20, height: 20, borderRadius: "50%", background: tint, boxShadow: `0 0 24px ${tint}` }} />
+        <span style={{ fontSize: 66, fontWeight: 800, letterSpacing: "-.03em", color: TXT }}>{name}</span>
+        <span style={{ fontSize: 30, fontWeight: 600, color: SOFT }}>{ws}</span>
+      </div>
+    </div>
   );
 };
 
@@ -243,7 +256,9 @@ const S5: React.FC = () => {
             <Slide dur={per + (i ? 8 : 0)}>
               <Product shot={sh} tint={tint} chip={["05", "ONE SHELL, ANY BUSINESS"]}
                 kfs={[FULL(0), KF(40, U(sh, ".kpis"), 1.55), KF(per + 8, U(sh, ".kpis"), 1.6)]}
-                callouts={[{ rect: R(sh, "#seg"), label: `${name} · ${ws}`, from: 8, to: per + 4, side: "bottom" }]} />
+                callouts={[{ rect: R(sh, "#seg"), label: "", from: 8, to: per + 4 }]}>
+                {() => <IndustryTitle name={name} ws={ws} tint={tint} />}
+              </Product>
             </Slide>
           </SceneCtx.Provider>
         </Sequence>
@@ -268,7 +283,7 @@ const S6: React.FC = () => {
           <Sequence key={sh} from={OV + a - (i ? 6 : 0)} durationInFrames={b - a + (i ? 6 : 0)}>
             <SceneCtx.Provider value={0}>
               <Fade dur={b - a + (i ? 6 : 0)} inF={i ? 6 : 1} outF={i < parts.length - 1 ? 6 : 0}>
-                <Product shot={sh} tint="#3b8bff" chip={["06", "LIVE MEETINGS, SIMULATED"]} kfs={kfs} callouts={cos} />
+                <Product shot={sh} tint="#3b8bff" chip={["06", "LIVE MEETINGS, SIMULATED"]} chipTop kfs={kfs} callouts={cos} />
               </Fade>
             </SceneCtx.Provider>
           </Sequence>
@@ -326,7 +341,7 @@ const S9: React.FC = () => {
       {f >= vl && f <= vl + ov.dur && [0, 1, 2].map((i) => { const ph = ((f - vl + i * 14) % 42) / 42; const sz = 220 * (1 + ph * 2.4); return <div key={i} style={{ position: "absolute", left: 960 - sz / 2, top: 360 - sz / 2, width: sz, height: sz, borderRadius: "50%", border: `3px solid ${ACC}`, opacity: (1 - ph) * 0.6 }} />; })}
       <div style={{ position: "absolute", top: 250, left: 860, width: 200, height: 200, transform: `scale(${0.7 + 0.3 * p})`, opacity: p, filter: `drop-shadow(0 0 40px ${ACC}aa)` }}><Img src={staticFile("logo.svg")} style={{ width: 200, height: 200 }} /></div>
       <div style={{ position: "absolute", top: 500, textAlign: "center", width: "100%" }}>
-        <div style={{ fontSize: 40, letterSpacing: ".4em", fontWeight: 800, color: TXT, opacity: t1 }}>NEXEN ENTERPRISE V1</div>
+        <div style={{ fontSize: 40, letterSpacing: ".4em", fontWeight: 800, color: TXT, opacity: t1 }}>NEXEN ENTERPRISE</div>
         <div style={{ fontSize: 96, fontWeight: 800, letterSpacing: "-.03em", color: TXT, marginTop: 30, opacity: t2, transform: `translateY(${(1 - t2) * 20}px)` }}>Open. Understand. <span style={{ color: ACC }}>Ask MARVIN.</span></div>
         <div style={{ fontSize: 24, color: SOFT, marginTop: 60, letterSpacing: ".06em", opacity: t3 }}>Demo data. Simulated responses. Concept features are future development.</div>
       </div>
@@ -347,8 +362,7 @@ export const Teaser: React.FC = () => (
     <SceneWrap k="S7"><S7 /></SceneWrap>
     <SceneWrap k="S8"><S8 /></SceneWrap>
     <SceneWrap k="S9"><S9 /></SceneWrap>
-    {/* Studio preview audio. The final mix is built by scripts/build.js with FFmpeg from the same timeline. */}
-    <Audio src={staticFile((tl.music as any).file)} volume={0.2} />
+    {/* Public-safe Studio preview: generated MARVIN voice only. Optional licensed music is added at final render time. */}
     {(tl.voice as any[]).map((v) => <Sequence key={v.id} from={v.start}><Audio src={staticFile(v.file)} /></Sequence>)}
   </AbsoluteFill>
 );

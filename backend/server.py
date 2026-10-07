@@ -29,7 +29,7 @@ class BodyTooLarge(ValueError):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "NexenDemo/1.0"
+    server_version = "NEXENEnterprise"
 
     def log_message(self, fmt, *args):  # quiet by default
         if os.environ.get("NEXEN_VERBOSE"):

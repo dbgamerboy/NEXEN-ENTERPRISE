@@ -6,14 +6,14 @@ const fs = require("fs");
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
 
 const ROOT = path.resolve(__dirname, "..");
-const SHOTS = path.join(ROOT, "docs", "img", "v2");
+const SHOTS = path.join(ROOT, "docs", "img");
 const PORT = 8700 + Math.floor(Math.random() * 90);
 const PY = process.env.PYTHON || "python";
 const results = [], shots = [], consoleErrors = [], badAssets = [];
 fs.mkdirSync(SHOTS, { recursive: true });
 
 function rec(area, name, pass, detail) { results.push({ area, name, pass: !!pass, detail: detail || "" }); console.log((pass ? "  PASS " : "  FAIL ") + area + ": " + name + (pass || !detail ? "" : " | " + detail)); }
-async function shot(page, name) { const f = path.join(SHOTS, name + ".png"); await page.screenshot({ path: f }); shots.push("docs/img/v2/" + name + ".png"); }
+async function shot(page, name) { const f = path.join(SHOTS, name + ".png"); await page.screenshot({ path: f }); shots.push("docs/img/" + name + ".png"); }
 function watch(page, tag) {
   page.on("pageerror", (e) => consoleErrors.push(tag + " pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error") consoleErrors.push(tag + " console: " + m.text()); });
@@ -24,7 +24,7 @@ const txt = (page, sel) => page.locator(sel).first().innerText();
 
 async function main() {
   const srv = spawn(PY, ["-B", path.join(ROOT, "backend", "server.py")], { env: { ...process.env, NEXEN_PORT: String(PORT) }, stdio: "ignore" });
-  const base = `http://127.0.0.1:${PORT}/v2/`;
+  const base = `http://127.0.0.1:${PORT}/`;
   for (let i = 0; i < 40; i++) { try { if ((await fetch(base)).ok) break; } catch (e) { /* wait */ } await new Promise((r) => setTimeout(r, 150)); }
   const browser = await chromium.launch(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {});
   try { await desktop(browser, base); await narrow(browser, base); await laptop(browser, base); } finally { await browser.close(); srv.kill(); }

@@ -1,28 +1,23 @@
-# NEXEN ENTERPRISE V1 demo receipt
+# NEXEN ENTERPRISE demo receipt
 
-Generated 2026-10-07T12:52:56.073Z from docs/qa-results.json (QA run 2026-10-07T12:52:55.686Z) and git status. Last commit before this work: 6fcb79c NEXEN_FINAL_DEMO_Q4: corporate meeting and exhaustive button test.
+Generated 2026-10-07T15:10:36.978Z from docs/qa-results.json (QA run 2026-10-07T15:10:36.656Z) and git status. Last commit before this work: 1f68618 NEXEN ENTERPRISE: canonicalize product, docs, media, and Pages.
 
 ## FILES CREATED
 - none
 
 ## FILES MODIFIED
-- .claude/skills/nexen-frontend-demo/SKILL.md
-- README.md
-- docs/DEMO-GUIDE.md
+- .github/workflows/pages.yml
+- DEMO_TARGET.json
+- data/sample/vectors.sample.jsonl
 - docs/qa-results.json
-- frontend/v2/app.js
-- frontend/v2/index.html
-- frontend/v2/styles.css
-- tests/test_backend.py
-- tools/demo_receipt.js
-- docs/img/ (24 screenshots)
+- docs/img/ (21 screenshots)
 
 ## ROUTES TESTED
-- /v2/#/ (landing)
-- /v2/#/construction
-- /v2/#/corporate
-- /v2/#/real-estate
-- /v2/#/<industry>/{workspace,files,tasks,automation,workers,activity,analytics,home}
+- /#/ (landing)
+- /#/construction
+- /#/corporate
+- /#/real-estate
+- /#/<industry>/{workspace,files,tasks,automation,workers,activity,analytics,home}
 
 ## INTERACTIONS TESTED (106 checks)
 ### Landing (3/3)
@@ -164,33 +159,33 @@ Generated 2026-10-07T12:52:56.073Z from docs/qa-results.json (QA run 2026-10-07T
 - PASS: no broken assets or failed requests
 
 ## SCREENSHOTS
-- docs/img/v2/01-landing-1080p.png
-- docs/img/v2/02-tutorial-marvin-step.png
-- docs/img/v2/03-construction-home-1080p.png
-- docs/img/v2/04-construction-file-preview.png
-- docs/img/v2/05-marvin-response-construction.png
-- docs/img/v2/06-marvin-listening.png
-- docs/img/v2/03-corporate-home-1080p.png
-- docs/img/v2/04-corporate-file-preview.png
-- docs/img/v2/05-marvin-response-corporate.png
-- docs/img/v2/16-corporate-meeting-briefing.png
-- docs/img/v2/17-corporate-meeting-live.png
-- docs/img/v2/18-corporate-meeting-notes.png
-- docs/img/v2/03-real-estate-home-1080p.png
-- docs/img/v2/04-real-estate-file-preview.png
-- docs/img/v2/05-marvin-response-real-estate.png
-- docs/img/v2/07-future-development.png
-- docs/img/v2/08-future-enlarged.png
-- docs/img/v2/09-narrow-landing.png
-- docs/img/v2/10-narrow-tutorial.png
-- docs/img/v2/11-narrow-home.png
-- docs/img/v2/12-narrow-menu.png
-- docs/img/v2/13-narrow-marvin.png
-- docs/img/v2/14-narrow-preview.png
-- docs/img/v2/15-laptop-realestate.png
+- docs/img/01-landing-1080p.png
+- docs/img/02-tutorial-marvin-step.png
+- docs/img/03-construction-home-1080p.png
+- docs/img/04-construction-file-preview.png
+- docs/img/05-marvin-response-construction.png
+- docs/img/06-marvin-listening.png
+- docs/img/03-corporate-home-1080p.png
+- docs/img/04-corporate-file-preview.png
+- docs/img/05-marvin-response-corporate.png
+- docs/img/16-corporate-meeting-briefing.png
+- docs/img/17-corporate-meeting-live.png
+- docs/img/18-corporate-meeting-notes.png
+- docs/img/03-real-estate-home-1080p.png
+- docs/img/04-real-estate-file-preview.png
+- docs/img/05-marvin-response-real-estate.png
+- docs/img/07-future-development.png
+- docs/img/08-future-enlarged.png
+- docs/img/09-narrow-landing.png
+- docs/img/10-narrow-tutorial.png
+- docs/img/11-narrow-home.png
+- docs/img/12-narrow-menu.png
+- docs/img/13-narrow-marvin.png
+- docs/img/14-narrow-preview.png
+- docs/img/15-laptop-realestate.png
 
 ## EXHAUSTIVE BUTTON TEST
-514 buttons and checkboxes clicked, one per fresh page load (run 2026-10-07T12:43:18.375Z). 514 passed, 0 failed. 12 read-only views (automation, workers, activity, analytics, per industry) have no controls to click.
+514 buttons and checkboxes clicked, one per fresh page load (run 2026-10-07T14:14:50.773Z). 514 passed, 0 failed. 12 read-only views (automation, workers, activity, analytics, per industry) have no controls to click.
 A click passes when it changes the page, route or toast, starts a download, or triggers voice playback. Page errors during the sweep: 0.
 
 ## PASS
@@ -212,4 +207,4 @@ None in this run.
 - The first-run tutorial shows once per browser (localStorage). Use Restart tutorial to see it again.
 - On a 390px phone the step 4 tutorial card sits over the top of the tall workers section.
 - File previews are UI mocks. No physical Word, PDF or Excel files were generated.
-- The gamified quest and boss layer from the first demo (frontend/index.html) is not part of v2.
+- The legacy gamified HUD is not part of NEXEN ENTERPRISE.

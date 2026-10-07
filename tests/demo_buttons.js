@@ -1,4 +1,4 @@
-// Exhaustive click test for the v2 demo. Every visible button and checkbox is clicked, one per fresh page load.
+// Exhaustive click test for the demo. Every visible button and checkbox is clicked, one per fresh page load.
 // A click passes when it changes the page (DOM, route, toast), starts a download, or triggers voice playback.
 // Buttons that are already in their active state (current tab, current industry) pass as idempotent.
 // Run: node tests/demo_buttons.js   (env: PYTHON, PLAYWRIGHT_PATH, PW_CHANNEL=chrome)
@@ -53,7 +53,7 @@ const modalSetup = (sel, wait) => async (p) => { await p.click(sel); await p.wai
 
 async function main() {
   const srv = spawn(PY, ["-B", path.join(ROOT, "backend", "server.py")], { env: { ...process.env, NEXEN_PORT: String(PORT) }, stdio: "ignore" });
-  base = `http://127.0.0.1:${PORT}/v2/`;
+  base = `http://127.0.0.1:${PORT}/`;
   for (let i = 0; i < 40; i++) { try { if ((await fetch(base)).ok) break; } catch (e) { /* wait */ } await new Promise((r) => setTimeout(r, 150)); }
   const browser = await chromium.launch(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {});
   const mk = async (done) => { const c = await browser.newContext({ viewport: { width: 1920, height: 1080 }, acceptDownloads: true }); if (done) await c.addInitScript(() => { try { localStorage.setItem("nexen_demo_tour_done", "1"); } catch (e) { /* ignore */ } });

@@ -1,379 +1,351 @@
-/* NEXEN Demo Build: every button works on sample data. Live backend endpoints are used when reachable. */
+/* NEXEN workspace demo. One shell, three mock workspaces. Demo data and simulated responses only. */
 (function () {
   "use strict";
-  const D = window.NEXEN_DATA, TOUR = window.NEXEN_TOUR;
+  const D = window.NX;
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const S = { live: false, xp: 0, leads: 0, clips: 0, installed: new Map(), industry: D.industries[0].id, picked: new Set(),
-              voted: false, plan: "Pro", voice: false, rec: true, den: false, nextI: 0, swarmTab: "Startups", dungeonI: 0, swarmRuns: 0 };
+  const S = { ind: null, view: "home", cat: "All", q: "", done: {}, chats: {}, speaking: false, listening: false };
+  window.__speakCount = 0; window.__lastSpoken = "";
 
-  /* ---------- helpers ---------- */
+  const VIEWS = [["home", "Home", "🏠"], ["workspace", "Workspace", "🧭"], ["files", "Files", "📁"], ["tasks", "Tasks", "✅"], ["automation", "Automation", "🔀"], ["workers", "Workers", "🤖"], ["activity", "Activity", "🕒"], ["analytics", "Analytics", "📊"]];
+  const cur = () => D.industries[S.ind];
+  const ext = (n) => n.split(".").pop().toLowerCase();
+  const stClass = (s) => s.split(" ")[0];
+
   let toastT;
   function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2600); }
-  function speak(text) {
-    if (!S.voice || !("speechSynthesis" in window)) return;
-    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 1.02; speechSynthesis.speak(u); } catch (e) { /* voice is optional */ }
-  }
-  async function api(path, body) {
-    const opt = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {};
-    const r = await fetch(path, opt);
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || r.statusText);
-    return j;
-  }
-  function addXp(n) {
-    S.xp += n;
-    const lvl = 1 + Math.floor(S.xp / 200);
-    $("#lvl").textContent = lvl; $("#xpbar").style.width = (S.xp % 200) / 2 + "%";
-    kpis();
-  }
-  function kpis() {
-    $("#k-leads").textContent = S.leads; $("#k-clips").textContent = S.clips;
-    $("#k-wf").textContent = S.installed.size; $("#k-xp").textContent = S.xp;
-  }
-  function modal(html) { const m = $("#modal"); $("#mbox").innerHTML = html; m.classList.add("on"); const c = $("#m-close"); if (c) c.focus(); }
-  function closeModal() { $("#modal").classList.remove("on"); $("#mbox").innerHTML = ""; }
-  $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal" || e.target.id === "m-close") closeModal(); });
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
 
-  /* ---------- pager (side arrows, tab bar) ---------- */
-  const track = $("#track");
-  const narrow = () => window.matchMedia("(max-width:1099px)").matches;
-  function curScreen() { return Math.round(track.scrollLeft / Math.max(1, track.clientWidth)); }
-  function goTo(i) { i = Math.max(0, Math.min(2, i)); if (narrow()) track.scrollTo({ left: i * track.clientWidth }); }
-  function syncPager() {
-    const i = curScreen();
-    $("#arr-l").disabled = i <= 0; $("#arr-r").disabled = i >= 2;
-    $$("#tabbar button").forEach((b) => b.classList.toggle("on", +b.dataset.go === i));
+  /* ---------- router ---------- */
+  function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
+  function route() {
+    const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+    const ind = parts[0], view = parts[1] || "home";
+    if (!ind || !D.industries[ind]) { showLanding(); return; }
+    enter(ind, VIEWS.some((v) => v[0] === view) ? view : "home");
   }
-  $("#arr-l").addEventListener("click", () => goTo(curScreen() - 1));
-  $("#arr-r").addEventListener("click", () => goTo(curScreen() + 1));
-  $$("#tabbar button").forEach((b) => b.addEventListener("click", () => goTo(+b.dataset.go)));
-  track.addEventListener("scroll", () => requestAnimationFrame(syncPager), { passive: true });
-  window.addEventListener("resize", syncPager);
+  window.addEventListener("hashchange", route);
 
-  /* ---------- screen 1: launch ---------- */
-  function renderOnboarding() {
-    $("#onb").innerHTML = D.videos.map((v, i) => `<div class="item"><div class="grow"><div class="t">${esc(v.t)}<span class="badge b-warn" id="onb-b${i}">${v.len}</span></div><div class="m">+${v.xp} XP</div></div><button class="btn sm" type="button" id="onb-play-${i}">▶ Play</button></div>`).join("");
-    D.videos.forEach((v, i) => $("#onb-play-" + i).addEventListener("click", () => playVideo(i)));
-    updOnb();
+  /* ---------- landing ---------- */
+  function previewSvg(ind) {
+    const c = ind.tint;
+    return `<svg viewBox="0 0 300 110" aria-hidden="true"><rect width="300" height="110" fill="#0d0f14"/><rect x="10" y="10" width="46" height="90" rx="6" fill="#12151c" stroke="#232836"/>
+      ${[0, 1, 2, 3].map((i) => `<rect x="62" y="${10 + i * 0}" width="0" height="0"/>`).join("")}
+      ${[0, 1, 2, 3].map((i) => `<rect x="${64 + i * 58}" y="12" width="52" height="26" rx="6" fill="#171b24" stroke="#232836"/><rect x="70" y="0" width="0" height="0"/><rect x="${70 + i * 58}" y="20" width="26" height="6" rx="3" fill="${i === 0 ? c : "#3a4157"}"/>`).join("")}
+      <rect x="64" y="46" width="130" height="54" rx="6" fill="#171b24" stroke="#232836"/>${[0, 1, 2].map((i) => `<rect x="72" y="${54 + i * 15}" width="${100 - i * 18}" height="7" rx="3" fill="${i === 0 ? c : "#3a4157"}" opacity="${i === 0 ? 1 : .8}"/>`).join("")}
+      <rect x="200" y="46" width="90" height="54" rx="6" fill="#101828" stroke="${c}" opacity=".9"/><circle cx="222" cy="66" r="9" fill="${c}"/><rect x="238" y="60" width="44" height="6" rx="3" fill="#aab2c3"/><rect x="238" y="72" width="34" height="6" rx="3" fill="#5b6479"/></svg>`;
   }
-  const watched = new Set();
-  function updOnb() { $("#onb-sum").textContent = watched.size + "/" + D.videos.length + " watched"; }
-  function playVideo(i) {
-    const v = D.videos[i];
-    modal(`<h2 style="margin:0;font-size:16px">${esc(v.t)}</h2><div id="vid">“${esc(v.say)}”</div><div class="bar"><i id="vbar"></i></div>
-      <div class="row" style="margin-top:12px"><button class="btn ok" id="m-watched" type="button">Mark watched (+${v.xp} XP)</button><button class="btn" id="m-close" type="button">Close</button></div>
-      <p class="note">Sample video card. In the full build this plays the recorded onboarding.</p>`);
-    requestAnimationFrame(() => { const b = $("#vbar"); if (b) b.style.width = "100%"; $("#vbar").style.transition = "width 4s linear"; });
-    speak(v.say);
-    $("#m-watched").addEventListener("click", () => {
-      if (!watched.has(i)) { watched.add(i); addXp(v.xp); $("#onb-b" + i).className = "badge b-ok"; $("#onb-b" + i).textContent = "watched"; updOnb(); }
-      toast("Watched: " + v.t); closeModal();
-    });
+  function renderLanding() {
+    $("#cards").innerHTML = D.order.map((id) => { const d = D.industries[id];
+      return `<article class="icard" style="--c:${d.tint}"><div class="top"><span class="ico">${d.icon}</span><h2>${esc(d.name.toUpperCase())}</h2></div><p>${esc(d.blurb)}</p>${previewSvg(d)}<button class="enter" type="button" data-ind="${id}" id="enter-${id}">ENTER WORKSPACE</button></article>`; }).join("");
+    $$("#cards .enter").forEach((b) => b.addEventListener("click", () => go("#/" + b.dataset.ind)));
   }
+  function showLanding() {
+    closeDrawer(); endTour(false); closeModal();
+    $("#landing").classList.remove("hide"); $("#app").classList.add("hide"); $("#marvin-fab").classList.add("hide");
+    document.title = "NEXEN Enterprise"; S.ind = null;
+  }
+  $("#land-tour").addEventListener("click", () => { store("nexen_demo_tour_done", ""); go("#/construction"); });
+  $("#home-logo").addEventListener("click", () => go("#/"));
 
-  function renderIndustries() {
-    $("#ind-chips").innerHTML = D.industries.map((x) => `<button type="button" class="chip" data-id="${x.id}">${x.icon} ${esc(x.name)}</button>`).join("");
-    $$("#ind-chips .chip").forEach((b) => b.addEventListener("click", () => { S.industry = b.dataset.id; renderWorkflows(); }));
-    renderWorkflows();
+  /* ---------- shell ---------- */
+  function enter(ind, view) {
+    const first = S.ind === null;
+    S.ind = ind; S.view = view;
+    const d = cur();
+    $("#landing").classList.add("hide"); $("#app").classList.remove("hide"); $("#marvin-fab").classList.remove("hide");
+    document.documentElement.style.setProperty("--tint", d.tint);
+    document.title = "NEXEN Enterprise · " + d.workspace;
+    $("#ws-name").textContent = d.workspace; $("#ws-sub").textContent = d.name + " workspace · Demo Data";
+    $("#av").textContent = d.user.initials; $("#u-name").textContent = d.user.name; $("#u-role").textContent = d.user.role;
+    const segHtml = D.order.map((id) => `<button type="button" data-ind="${id}" class="${id === ind ? "on" : ""}">${D.industries[id].icon} ${esc(D.industries[id].name)}</button>`).join("");
+    $("#seg").innerHTML = segHtml;
+    renderNav(); renderPage(); renderSuggestions(); renderConvo();
+    $("#side").classList.remove("on"); $("#main").scrollTop = 0;
+    if (first && store("nexen_demo_tour_done") !== "1") setTimeout(() => startTour(), 500);
   }
-  function renderWorkflows() {
-    const ind = D.industries.find((x) => x.id === S.industry);
-    $$("#ind-chips .chip").forEach((b) => b.classList.toggle("on", b.dataset.id === S.industry));
-    $("#wf-sum").textContent = ind.name;
-    $("#wf-list").innerHTML = ind.wf.map((w, i) => {
-      const key = ind.id + ":" + i, on = S.installed.has(key);
-      return `<div class="item wf"><div class="grow"><div class="t">${esc(w[0])}<span class="badge b-warn">${w[1]} nodes</span></div><div class="m">${esc(w[2])}</div></div><button class="btn sm ${on ? "ok" : ""}" type="button" data-key="${key}" data-i="${i}">${on ? "Installed ✓" : "Install"}</button></div>`;
-    }).join("");
-    $$("#wf-list .btn").forEach((b) => b.addEventListener("click", () => {
-      const key = b.dataset.key, w = ind.wf[+b.dataset.i];
-      if (S.installed.has(key)) { S.installed.delete(key); toast("Removed: " + w[0]); } else { S.installed.set(key, { name: w[0], nodes: w[1], ind: ind.id }); addXp(20); toast("Installed: " + w[0]); }
-      renderWorkflows(); renderPicker(); kpis();
-    }));
+  $("#seg").addEventListener("click", (e) => { const b = e.target.closest("button[data-ind]"); if (b) { S.q = ""; $("#search").value = ""; S.cat = "All"; go("#/" + b.dataset.ind + "/" + S.view); toast("Switched to " + D.industries[b.dataset.ind].name); } });
+  function renderNav() {
+    const open = cur().tasks.filter((t, i) => !(S.done[S.ind] || {})[i]).length;
+    $("#nav").innerHTML = `<div class="seg" style="margin-bottom:8px">${D.order.map((id) => `<button type="button" data-ind="${id}" class="${id === S.ind ? "on" : ""}" title="${esc(D.industries[id].name)}">${D.industries[id].icon}</button>`).join("")}</div>` +
+      VIEWS.map((v) => `<button class="nav ${S.view === v[0] ? "on" : ""}" type="button" data-view="${v[0]}" id="nav-${v[0]}"><span class="i">${v[2]}</span>${v[1]}${v[0] === "tasks" && open ? `<span class="cnt">${open}</span>` : ""}</button>`).join("");
+    $$("#nav .nav").forEach((b) => b.addEventListener("click", () => go("#/" + S.ind + "/" + b.dataset.view)));
+    $$("#nav .seg button").forEach((b) => b.addEventListener("click", () => go("#/" + b.dataset.ind + "/" + S.view)));
   }
-  function renderPicker() {
-    const sel = $("#wf-pick"), old = sel.value;
-    sel.innerHTML = S.installed.size ? Array.from(S.installed, ([k, v]) => `<option value="${k}">${esc(v.name)}</option>`).join("") : `<option value="">No workflows installed yet</option>`;
-    if (S.installed.has(old)) sel.value = old;
-  }
-
-  function renderCourses() {
-    $("#courses").innerHTML = D.courses.map((c, i) => `<div class="item"><div class="grow"><div class="t">${esc(c.name)}<span class="badge b-warn">${c.tier}</span></div><div class="m">${c.lessons} lessons · ${esc(c.blurb)}</div></div><button class="btn sm" type="button" id="course-${i}" data-id="${c.id}"></button></div>`).join("");
-    $$("#courses .btn").forEach((b) => b.addEventListener("click", () => {
-      const id = b.dataset.id;
-      if (S.picked.has(id)) S.picked.delete(id); else if (S.picked.size < 2) { S.picked.add(id); addXp(15); }
-      updCourses();
-    }));
-    updCourses();
-  }
-  function updCourses() {
-    $("#course-sum").textContent = S.picked.size + "/2 picked";
-    $$("#courses .btn").forEach((b) => {
-      const on = S.picked.has(b.dataset.id), full = S.picked.size >= 2 && !on;
-      b.textContent = on ? "Picked ✓" : full ? "Locked" : "Pick"; b.disabled = full; b.classList.toggle("ok", on);
-    });
-  }
-
-  function renderVotes() {
-    const total = D.votes.reduce((a, v) => a + v.n, 0);
-    $("#votes").innerHTML = D.votes.map((v, i) => `<div class="item"><div class="grow"><div class="t">${esc(v.name)}</div><div class="bar"><i style="width:${Math.round(v.n / total * 100)}%"></i></div><div class="m">${v.n} votes (sample)</div></div><button class="btn sm" type="button" id="vote-${i}" ${S.voted ? "disabled" : ""}>Vote</button></div>`).join("");
-    D.votes.forEach((v, i) => $("#vote-" + i).addEventListener("click", () => { if (S.voted) return; S.voted = true; v.n += 1; addXp(10); toast("Vote counted for " + v.name); renderVotes(); }));
-  }
-
-  function renderPlans() {
-    $("#plan-tabs").innerHTML = Object.keys(D.plans).map((p) => `<button type="button" class="tab ${p === S.plan ? "on" : ""}" data-p="${p}">${p}</button>`).join("");
-    $$("#plan-tabs .tab").forEach((b) => b.addEventListener("click", () => { S.plan = b.dataset.p; renderPlans(); }));
-    $("#perks").innerHTML = D.plans[S.plan].map((x) => `<li>${esc(x)}</li>`).join("");
-  }
-  $("#subscribe").addEventListener("click", () => toast("Demo only: no payment taken. " + S.plan + " perks previewed."));
-
-  function localRoi(name, earned, spent, rep, hours) {
-    const profit = +(earned - spent).toFixed(2);
-    const roi = spent === 0 ? (profit > 0 ? null : 0) : +(profit / spent * 100).toFixed(1);
-    if (profit <= 0) return { name, profit, roi_pct: roi, score: 0, decision: "KILL", reason: "operating at a loss" };
-    const score = +(profit * (rep / 10) / (hours > 0 ? hours : 0.1)).toFixed(2);
-    const scale = roi === null || roi >= 20;
-    return { name, profit, roi_pct: roi, score, decision: scale ? "SCALE" : "HOLD", reason: scale ? "profitable and repeatable" : "barely breaking even, send to backlog" };
-  }
-  $("#roi-run").addEventListener("click", async () => {
-    const name = $("#roi-name").value.trim() || "Workflow", e = +$("#roi-earned").value, sp = +$("#roi-spent").value, rep = +$("#roi-rep").value, hrs = +$("#roi-hrs").value;
-    if (!(e >= 0 && sp >= 0 && hrs >= 0 && rep >= 1 && rep <= 10)) { toast("Check inputs: repeatability 1 to 10, no negatives."); return; }
-    let r, src = "browser";
-    try { if (S.live) { r = await api("/api/roi", { name, earned: e, spent: sp, repeat: rep, hours: hrs }); src = "live backend"; } } catch (x) { r = null; }
-    if (!r) r = localRoi(name, e, sp, rep, hrs);
-    const cls = r.decision === "SCALE" ? "b-ok" : r.decision === "HOLD" ? "b-warn" : "b-bad";
-    $("#roi-out").innerHTML = `<b>${esc(r.name)}</b><span class="badge ${cls}">${r.decision}</span><br>Profit $${r.profit} · ROI ${r.roi_pct === null ? "unbounded" : r.roi_pct + "%"} · Score ${r.score} · ${esc(r.reason)}`;
-    $("#roi-src").textContent = src; addXp(10);
+  $("#ham").addEventListener("click", () => $("#side").classList.toggle("on"));
+  $("#nav-marvin").addEventListener("click", () => openDrawer());
+  $("#bell").addEventListener("click", () => {
+    const d = cur();
+    openModal(`<div class="m-h"><div style="flex:1"><b>Notifications</b><small>${esc(d.workspace)} · Demo Data</small></div><button class="btn sm" data-close type="button">Close</button></div><div style="padding:18px 22px">${d.priority.map((p, i) => `<button class="pri" type="button" data-file="${p[3]}"><span class="sev ${p[0]}">${p[0]}</span><span style="flex:1"><span class="t">${esc(p[1])}</span><br><span class="m">${esc(p[2])}</span></span></button>`).join("")}</div>`);
+    $$("#mbox [data-file]").forEach((b, k) => b.addEventListener("click", () => { const p = d.priority[k]; if (p && p[4]) openMeeting("brief"); else openFile(+b.dataset.file); }));
   });
-
-  /* ---------- screen 2: MARVIN ---------- */
-  function say(who, text) {
-    const d = document.createElement("div"); d.className = "msg " + who; $("#log").appendChild(d);
-    if (who === "me") { d.textContent = text; } else { let i = 0; const step = () => { d.textContent = text.slice(0, i += 3); $("#log").scrollTop = 1e6; if (i < text.length) setTimeout(step, 14); }; step(); speak(text); }
-    $("#log").scrollTop = 1e6;
+  function settingsModal() {
+    openModal(`<div class="m-h"><div style="flex:1"><b>Settings</b><small>Demo controls</small></div><button class="btn sm" data-close type="button">Close</button></div>
+      <div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px"><div><button class="btn primary" id="set-tour" type="button">Restart tutorial</button></div><div><button class="btn" id="set-home" type="button">Back to industry selection</button></div>
+      <p class="note" style="color:var(--muted)">All data is demo data. MARVIN answers are simulated. Voice playback uses your browser's speech engine.</p></div>`);
+    $("#set-tour").addEventListener("click", () => { closeModal(); startTour(); });
+    $("#set-home").addEventListener("click", () => { closeModal(); go("#/"); });
   }
-  function ask(q) {
-    say("me", q);
-    const hit = D.chat.find((c) => c[0].test(q));
-    say("bot", hit ? hit[1] : D.chatDefault);
+  $("#nav-settings").addEventListener("click", settingsModal);
+  $("#user").addEventListener("click", settingsModal);
+  $("#search").addEventListener("input", (e) => { S.q = e.target.value; if (S.view !== "files") { S.view = "files"; location.hash = "#/" + S.ind + "/files"; } else renderPage(); });
+
+  /* ---------- pages ---------- */
+  function secKpis(d) { return `<div class="kpis">${d.kpis.map((k) => `<div class="kpi"><b>${esc(k[0])}</b><span>${esc(k[1])}</span><small>${esc(k[2])} · demo</small></div>`).join("")}</div>`; }
+  function secPriority(d, title) {
+    return `<section class="sec" id="sec-priority"><div class="sec-h"><h2>${title || "Priority items"}</h2><small>${d.priority.length} need a look</small></div>${d.priority.map((p, i) => `<button class="pri" type="button" id="pri-${i}" data-file="${p[3]}" ${p[4] ? 'data-meeting="1"' : ""}><span class="sev ${p[0]}">${p[0]}</span><span style="flex:1;min-width:0"><span class="t">${esc(p[1])}</span><br><span class="m">${esc(p[2])}</span></span><span class="link">Open ›</span></button>`).join("")}</section>`;
   }
-  $("#chatform").addEventListener("submit", (e) => { e.preventDefault(); const v = $("#chat-in").value.trim(); if (!v) return; $("#chat-in").value = ""; ask(v); });
-  ["What's the money move today?", "What's blocking me?", "Find me a startup"].forEach((q) => {
-    const b = document.createElement("button"); b.type = "button"; b.className = "quick"; b.textContent = q; b.addEventListener("click", () => ask(q)); $("#quick").appendChild(b);
-  });
-  $("#voice").addEventListener("click", () => {
-    if (!("speechSynthesis" in window)) { toast("This browser has no speech voice."); return; }
-    S.voice = !S.voice; $("#voice").textContent = S.voice ? "🔊 Voice on" : "🔇 Voice off"; $("#voice").setAttribute("aria-pressed", S.voice);
-    if (S.voice) speak("MARVIN voice on."); else speechSynthesis.cancel();
-  });
-
-  function renderNext() {
-    const n = D.nextActions[S.nextI % D.nextActions.length]; $("#next-t").textContent = n.t; $("#next-w").textContent = n.why + " (+" + n.xp + " XP)";
+  function secRec(d) {
+    return `<section class="rec" id="sec-rec"><div class="head"><span class="orb"></span><div><div class="who">MARVIN RECOMMENDS</div><small style="color:var(--muted)">Simulated response</small></div></div><h3>${esc(d.recommend.title)}</h3><p>${esc(d.recommend.text)}</p><ul class="then">${d.tasks.slice(1, 3).map((t) => `<li><b>THEN</b>${esc(t[0])}</li>`).join("")}</ul><div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" type="button" data-file="${d.recommend.file}" id="rec-open">Open ${esc(d.files[d.recommend.file].name.replace(/_/g, " ").replace(/\.\w+$/, ""))}</button><button class="btn sm" type="button" id="rec-ask">Ask MARVIN</button></div></section>`;
   }
-  $("#next-do").addEventListener("click", () => { const n = D.nextActions[S.nextI % D.nextActions.length]; addXp(n.xp); toast("Done: " + n.t); S.nextI++; renderNext(); });
-  $("#next-skip").addEventListener("click", () => { S.nextI++; renderNext(); });
-
-  function renderApprovals() {
-    $("#appr").innerHTML = D.approvals.map((a, i) => `<div class="item" id="appr-${i}"><div class="grow"><div class="t">${esc(a.t)}</div><div class="m">${esc(a.why)}</div></div><span class="row"><button class="btn sm ok ok-btn ok" type="button" data-i="${i}">Approve</button><button class="btn sm no" type="button" data-i="${i}" data-no="1">Deny</button></span></div>`).join("");
-    $$("#appr button").forEach((b) => b.addEventListener("click", () => {
-      const i = +b.dataset.i, a = D.approvals[i], row = $("#appr-" + i), yes = !b.dataset.no;
-      row.querySelector(".row").innerHTML = `<span class="badge ${yes ? "b-ok" : "b-bad"}">${yes ? "approved" : "denied"}</span>`;
-      if (yes) { if (i === 0) S.clips += 3; if (i === 1) S.leads += 12; addXp(15); } kpis();
-      toast((yes ? "Approved: " : "Denied: ") + a.t);
-    }));
+  function fileRows(d, list) {
+    if (!list.length) return `<p class="note" style="color:var(--muted);padding:10px">No files match your search.</p>`;
+    return `<div class="files"><div class="frow head"><span>Name</span><span class="c-owner">Owner</span><span class="c-mod">Modified</span><span class="c-size">Size</span><span>Status</span></div>${list.map(([f, i]) => `<button class="frow" type="button" id="file-${i}" data-file="${i}"><span class="fname"><span class="ftype ${ext(f.name)}">${ext(f.name).toUpperCase()}</span><span style="min-width:0"><b>${esc(f.name)}</b><small>${esc(f.cat)}</small></span></span><span class="fmeta c-owner">${esc(f.owner)}</span><span class="fmeta c-mod">${esc(f.mod)}</span><span class="fmeta c-size">${esc(f.size)}</span><span class="st ${stClass(f.status)}">${esc(f.status)}</span></button>`).join("")}</div>`;
   }
-
-  let feedI = 0, feedTimer;
-  function feedTick() {
-    const f = D.feed[feedI++ % D.feed.length], el = document.createElement("div");
-    el.innerHTML = `<b>${esc(f[0])}</b> ${esc(f[1])}`; const box = $("#feed"); box.prepend(el);
-    while (box.children.length > 6) box.lastChild.remove();
-    if (/leads/.test(f[1])) S.leads += S.den ? 28 : 14; if (/clips/.test(f[1])) S.clips += S.den ? 12 : 6; kpis();
+  function filtered(d) {
+    return d.files.map((f, i) => [f, i]).filter(([f]) => (S.cat === "All" || f.cat === S.cat) && (!S.q || (f.name + f.cat + f.owner + f.status).toLowerCase().includes(S.q.toLowerCase())));
   }
-  function startFeed() { clearInterval(feedTimer); if (S.rec) feedTimer = setInterval(feedTick, S.den ? 1100 : 2200); }
-  $("#rec-toggle").addEventListener("click", () => {
-    S.rec = !S.rec; $("#rec-dot").classList.toggle("off", !S.rec); $("#rec-txt").textContent = S.rec ? "Recording" : "Paused"; startFeed(); toast(S.rec ? "Agent recording on" : "Agent recording paused");
-  });
-
-  let running = false;
-  $("#wf-run").addEventListener("click", () => {
-    const key = $("#wf-pick").value, w = S.installed.get(key), t = $("#wf-term");
-    if (!w) { toast("Install a workflow on screen 1 first."); return; }
-    if (running) return; running = true; t.textContent = "";
-    const steps = ["▶ trigger: manual run", "▸ fetch input (sample data)"]; for (let i = 2; i < Math.min(w.nodes, 7); i++) steps.push("▸ node " + i + " ok");
-    steps.push("✔ done · " + (w.ind === "clip" ? "6 clips queued for approval" : w.ind === "lead" ? "14 leads scored" : w.ind === "re" ? "3 properties flagged" : "sample output ready"));
-    let i = 0; const next = () => {
-      t.textContent += steps[i++] + "\n"; t.scrollTop = 1e6;
-      if (i < steps.length) setTimeout(next, 320);
-      else { running = false; if (w.ind === "clip") S.clips += 6; if (w.ind === "lead") S.leads += 14; addXp(25); toast("Ran: " + w.name); }
-    }; next();
-  });
-
-  const LOCAL_DOCS = [
-    ["clipping-workflow", "Clip scoring ranks each moment by hook strength in the first three seconds, speaker energy, a clear payoff and caption readability. Clips under 60 are dropped."],
-    ["lead-finder", "Describe your ideal buyer, the swarm scans public directories, scores fit and queues a draft email. A human approves every send."],
-    ["approvals", "Anything that posts, sends or spends money waits in a queue. Approve or deny with one tap."],
-    ["rpg-layer", "Tasks become monsters in dungeons. The last task is the boss. A critical strike unlocks a workflow. PVE only."],
-    ["workflow-roi", "Scores money earned against money spent, repeatability and hours. Losing workflows are killed, thin ones held, strong ones scaled."],
-    ["translation-engine", "Localizes a pitch or video script into many languages and keeps product names untouched."]
-  ];
-  function localSearch(q) {
-    const w = q.toLowerCase().match(/[a-z0-9']{2,}/g) || [];
-    return LOCAL_DOCS.map((d) => ({ skill: d[0], chunk: 0, snippet: d[1], score: w.reduce((a, t) => a + (d[1].toLowerCase().includes(t) || d[0].includes(t) ? 1 : 0), 0) }))
-      .filter((h) => h.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
+  function secFiles(d, full) {
+    const list = full ? filtered(d) : d.files.slice(0, 5).map((f, i) => [f, i]);
+    const cats = ["All"].concat(Array.from(new Set(d.files.map((f) => f.cat))));
+    return `<section class="sec" id="sec-files"><div class="sec-h"><h2>${full ? "All files" : "Recent files"}</h2><small>${d.files.length} files · demo data</small><span class="sp"></span>${full ? "" : `<button class="link" type="button" data-view="files">View all ›</button>`}</div>${full ? `<div class="fl">${cats.map((c) => `<button class="chipf ${S.cat === c ? "on" : ""}" type="button" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}</div>` : ""}${fileRows(d, list)}</section>`;
   }
-  $("#brain-form").addEventListener("submit", async (e) => {
-    e.preventDefault(); const q = $("#brain-q").value.trim(); if (!q) return;
-    let hits, src = "browser sample";
-    try { if (S.live) { const r = await api("/api/search?q=" + encodeURIComponent(q) + "&k=4"); hits = r.hits; src = "live · " + r.source; } } catch (x) { hits = null; }
-    if (!hits) hits = localSearch(q);
-    $("#brain-src").textContent = src;
-    $("#brain-out").innerHTML = hits.length ? hits.map((h) => `<div class="item"><div class="grow"><div class="t">${esc(h.skill)}<span class="badge b-ok">${h.score}</span></div><div class="m">${esc(h.snippet)}</div></div></div>`).join("") : `<div class="note">No match. Try: clips, leads, approvals, ROI.</div>`;
-    addXp(5);
-  });
-
-  /* ---------- screen 3: grow ---------- */
-  function renderDungeon() {
-    const d = D.dungeon, inTasks = S.dungeonI < d.tasks.length;
-    $("#mon-e").textContent = inTasks ? ["📨", "🎞️", "🧩", "📊"][S.dungeonI % 4] : "🐉";
-    $("#mon-n").textContent = inTasks ? d.tasks[S.dungeonI] : d.boss;
-    $("#mon-s").textContent = inTasks ? d.name + " · task " + (S.dungeonI + 1) + " of " + d.tasks.length : d.name + " · boss HP " + Math.max(0, S.bossHp) + "/" + d.bossHp;
-    $("#hpbar").style.width = inTasks ? "100%" : Math.max(0, S.bossHp) + "%";
-    $("#atk").disabled = !inTasks && S.bossHp <= 0;
+  function secActivity(d, limit) {
+    return `<section class="sec" id="sec-activity"><div class="sec-h"><h2>Recent activity</h2><small>Simulated</small><span class="sp"></span>${limit ? `<button class="link" type="button" data-view="activity">View all ›</button>` : ""}</div><ul class="tl">${d.activity.slice(0, limit || 99).map((a) => `<li><i></i><span>${esc(a[0])}</span><small>${esc(a[1])}</small></li>`).join("")}</ul></section>`;
   }
-  function floatDmg(n) { const e = document.createElement("div"); e.className = "dmg"; e.textContent = "-" + n; $("#mon").appendChild(e); setTimeout(() => e.remove(), 950); $("#mon").classList.add("hit"); setTimeout(() => $("#mon").classList.remove("hit"), 150); }
-  $("#atk").addEventListener("click", () => {
-    const d = D.dungeon;
-    if (S.dungeonI < d.tasks.length) { floatDmg(10 + S.dungeonI * 3); toast("Task cleared: " + d.tasks[S.dungeonI]); addXp(20); S.dungeonI++; if (S.dungeonI === d.tasks.length) S.bossHp = d.bossHp; renderDungeon(); return; }
-    const dmg = 34; S.bossHp -= dmg; floatDmg(dmg);
-    if (S.bossHp <= 0) {
-      const c = $("#crit"); c.style.display = "flex"; c.style.animation = "none"; void c.offsetWidth; c.style.animation = "";
-      setTimeout(() => { c.style.display = "none"; }, 1450);
-      addXp(150); speak(D.marvinLines.crit); toast("Boss down. Workflow unlocked: Offer Letter Drafter"); say("bot", D.marvinLines.crit);
-    } else addXp(10);
-    renderDungeon();
-  });
-  $("#dng").addEventListener("click", () => { S.dungeonI = 0; S.bossHp = D.dungeon.bossHp; renderDungeon(); toast("New dungeon: " + D.dungeon.name); });
-
-  function drawQr() {
-    const c = $("#qr"), x = c.getContext("2d"), n = 33; x.fillStyle = "#fff"; x.fillRect(0, 0, n, n); x.fillStyle = "#000";
-    let s = (Date.now() % 100000) | 1; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (rnd() > 0.52) x.fillRect(i, j, 1, 1);
-    [[0, 0], [n - 7, 0], [0, n - 7]].forEach(([a, b]) => { x.fillStyle = "#fff"; x.fillRect(a - 1, b - 1, 9, 9); x.fillStyle = "#000"; x.fillRect(a, b, 7, 7); x.fillStyle = "#fff"; x.fillRect(a + 1, b + 1, 5, 5); x.fillStyle = "#000"; x.fillRect(a + 2, b + 2, 3, 3); });
+  function secWorkers(d, withFlows, only) {
+    const w = `<div class="wgrid">${d.workers.map((w, i) => `<div class="worker" id="worker-${i}"><span class="sim">SIMULATED</span><b>${esc(w[0])}</b><p>${esc(w[1])}</p><span class="wst ${w[2]}"><i></i>${esc(w[2])}</span></div>`).join("")}</div>`;
+    const f = withFlows ? `<div style="margin-top:18px"><div class="sec-h"><h2 style="font-size:14px">Active workflows</h2></div>${d.flows.map((x) => `<div class="flow"><b>${esc(x[0])}</b> <span class="note" style="color:var(--muted)">· ${esc(x[1])}</span><div class="bar"><i style="width:${x[2]}%"></i></div></div>`).join("")}</div>` : "";
+    return `<section class="sec" id="sec-workers"><div class="sec-h"><h2>${only === "automation" ? "Automation" : "Workers + automation"}</h2><small>Specialized workers, activity always visible</small></div>${only === "automation" ? "" : w}${f}</section>`;
   }
-  $("#qr-gen").addEventListener("click", () => { drawQr(); toast("Demo QR pattern. Not a real login code."); });
-  $("#shot").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) return; $("#shot-n").textContent = "Selected " + f.name + ". Balance shown is sample data, nothing was uploaded."; $("#bal").textContent = "$1,250.00"; toast("Balance screenshot attached (demo only)"); });
-
-  function renderSwarm() {
-    $("#swarm-tabs").innerHTML = Object.keys(D.swarm).map((k) => `<button type="button" class="tab ${k === S.swarmTab ? "on" : ""}" data-k="${esc(k)}">${esc(k)}</button>`).join("");
-    $$("#swarm-tabs .tab").forEach((b) => b.addEventListener("click", () => { S.swarmTab = b.dataset.k; renderSwarm(); }));
-    const t = D.swarm[S.swarmTab], num = (v) => typeof v === "number";
-    $("#swarm-tbl").innerHTML = `<table><tr>${t.cols.map((c) => `<th>${esc(c)}</th>`).join("")}</tr>${t.rows.map((r) => `<tr>${r.map((v) => `<td class="${num(v) ? "fit" : ""}">${esc(v)}</td>`).join("")}</tr>`).join("")}</table>`;
-    $("#swarm-sum").textContent = t.rows.length + " found" + (S.swarmRuns ? " · run " + S.swarmRuns : "");
+  function art(v, big) {
+    const hue = ["#6aa8ff", "#73c7ff", "#3ddc97"][v], h = big ? 300 : 170;
+    return `<svg viewBox="0 0 400 ${h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Concept visualization"><defs><linearGradient id="g${v}${big ? "b" : ""}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0d18"/><stop offset="1" stop-color="#1a1426"/></linearGradient><radialGradient id="o${v}${big ? "b" : ""}"><stop offset="0" stop-color="${hue}" stop-opacity=".9"/><stop offset="1" stop-color="${hue}" stop-opacity="0"/></radialGradient></defs>
+      <rect width="400" height="${h}" fill="url(#g${v}${big ? "b" : ""})"/><ellipse cx="200" cy="${h * .5}" rx="150" ry="70" fill="url(#o${v}${big ? "b" : ""})" opacity=".35"/>
+      ${[0, 1, 2, 3, 4, 5, 6].map((i) => `<line x1="${200 + (i - 3) * 20}" y1="${h * .62}" x2="${200 + (i - 3) * 90}" y2="${h}" stroke="${hue}" stroke-opacity=".35"/>`).join("")}${[0, 1, 2, 3].map((i) => `<line x1="0" y1="${h * (.68 + i * .1)}" x2="400" y2="${h * (.68 + i * .1)}" stroke="${hue}" stroke-opacity=".25"/>`).join("")}
+      ${v === 0 ? `<rect x="60" y="${h * .2}" width="90" height="${h * .3}" rx="6" fill="#ffffff" fill-opacity=".08" stroke="${hue}" transform="skewY(-6)"/><rect x="250" y="${h * .18}" width="90" height="${h * .34}" rx="6" fill="#ffffff" fill-opacity=".08" stroke="${hue}" transform="skewY(6)"/><rect x="155" y="${h * .12}" width="90" height="${h * .4}" rx="6" fill="#ffffff" fill-opacity=".12" stroke="${hue}"/>` : v === 1 ? `<circle cx="200" cy="${h * .42}" r="${h * .2}" fill="url(#o${v}${big ? "b" : ""})"/><circle cx="200" cy="${h * .42}" r="${h * .13}" fill="none" stroke="${hue}" stroke-width="2"/><rect x="40" y="${h * .25}" width="80" height="${h * .22}" rx="6" fill="#fff" fill-opacity=".07" stroke="${hue}"/><rect x="280" y="${h * .25}" width="80" height="${h * .22}" rx="6" fill="#fff" fill-opacity=".07" stroke="${hue}"/>` : [0, 1, 2, 3, 4].map((i) => `<circle cx="${70 + i * 65}" cy="${h * (.3 + (i % 2) * .15)}" r="14" fill="${hue}" fill-opacity=".5" stroke="${hue}"/><line x1="${70 + i * 65}" y1="${h * (.3 + (i % 2) * .15)}" x2="${70 + (i + 1) * 65}" y2="${h * (.3 + ((i + 1) % 2) * .15)}" stroke="${hue}" stroke-opacity=".6"/>`).join("")}
+      <g fill="#fff" fill-opacity=".14" font-family="ui-monospace,monospace" font-weight="800" font-size="13" letter-spacing="3">${[0, 1, 2].map((r) => `<text x="${-40 + r * 30}" y="${h * (.3 + r * .28)}" transform="rotate(-18 200 ${h / 2})">CONCEPT · FUTURE DEVELOPMENT · CONCEPT · FUTURE DEVELOPMENT</text>`).join("")}</g></svg>`;
   }
-  $("#swarm-run").addEventListener("click", () => {
-    const b = $("#swarm-run"); b.disabled = true; b.textContent = "Scouting…";
-    setTimeout(() => {
-      S.swarmRuns++; const t = D.swarm[S.swarmTab];
-      t.rows = t.rows.map((r) => r.map((v) => (typeof v === "number" ? Math.max(50, Math.min(99, v + Math.round(Math.random() * 6 - 2))) : v)));
-      t.rows.sort((a, c) => (c.find((v) => typeof v === "number") || 0) - (a.find((v) => typeof v === "number") || 0));
-      if (S.swarmTab === "Leads") S.leads += S.den ? 16 : 8; addXp(10); renderSwarm(); kpis();
-      b.disabled = false; b.textContent = "Run swarm"; toast("Swarm finished: " + S.swarmTab + (S.den ? " (Denizen x2)" : ""));
-    }, 900);
-  });
-
-  function renderLang() { $("#tr-lang").innerHTML = Object.entries(D.languages).map(([k, v]) => `<option value="${k}">${esc(v[0])}</option>`).join(""); $("#tr-out").textContent = D.pitch; }
-  $("#tr-go").addEventListener("click", () => { const l = D.languages[$("#tr-lang").value]; const o = $("#tr-out"); o.textContent = l[1]; o.dir = l[2] || "ltr"; addXp(5); toast("Translated to " + l[0]); });
-
-  function drawAb(progress) {
-    const c = $("#ab"), x = c.getContext("2d"), W = c.width, H = c.height, p = 24; x.clearRect(0, 0, W, H);
-    x.strokeStyle = "rgba(255,255,255,.12)"; x.fillStyle = "rgba(255,255,255,.5)"; x.font = "14px sans-serif";
-    for (let g = 0; g <= 4; g++) { const y = p + (H - 2 * p) * g / 4; x.beginPath(); x.moveTo(p, y); x.lineTo(W - p, y); x.stroke(); x.fillText(100 - g * 25 + "%", 0, y + 4); }
-    const line = (arr, col) => { x.strokeStyle = col; x.lineWidth = 3; x.beginPath(); const m = Math.max(1, Math.floor((arr.length - 1) * progress)); for (let i = 0; i <= m; i++) { const px = p + 12 + (W - 2 * p - 12) * i / (arr.length - 1), py = p + (H - 2 * p) * (1 - arr[i] / 100); if (i) x.lineTo(px, py); else x.moveTo(px, py); } x.stroke(); };
-    line(D.retention.theirs, "#8f7a7c"); line(D.retention.ours, "#ff3b43");
+  function secFuture() {
+    return `<section class="future" id="sec-future"><h2>FUTURE DEVELOPMENT</h2><p class="sub">Concept previews of where NEXEN could go. None of this works today.</p><div class="fgrid">${D.future.map((f, i) => `<button class="fcard" type="button" id="future-${i}" data-future="${i}">${art(f.v)}<span class="cap"><span class="fbadge">${esc(f.badge)}</span><b>${esc(f.t)}</b><p>${esc(f.d)}</p></span></button>`).join("")}</div><p class="disc">Concept visualization. Not representative of currently shipped functionality.</p></section>`;
   }
-  $("#ab-run").addEventListener("click", () => {
-    const b = $("#ab-run"); b.disabled = true; let t0 = null;
-    const frame = (ts) => { t0 = t0 || ts; const pr = Math.min(1, (ts - t0) / 1200); drawAb(pr); if (pr < 1) requestAnimationFrame(frame); else {
-      const o = D.retention.ours[9], th = D.retention.theirs[9]; $("#ab-out").textContent = "Ours holds " + o + "% at the end vs " + th + "%: +" + (o - th) + " points (sample)."; b.disabled = false; addXp(10); toast("A/B finished: ours wins"); } };
-    requestAnimationFrame(frame);
-  });
-
-  function renderRoad() { $("#road").innerHTML = D.roadmap.map((r) => `<div class="item"><div class="grow"><div class="t">${r.v} · ${esc(r.t)}<span class="badge ${r.s === "shipped" ? "b-ok" : r.s === "demo" ? "b-warn" : "b-bad"}">${esc(r.s)}</span></div><div class="m">${esc(r.d)}</div></div></div>`).join(""); }
-  $("#vr-open").addEventListener("click", () => {
-    modal(`<h2 style="margin:0;font-size:16px">VR home preview (planned 2027)</h2><div id="room"><div id="cube"><div class="f"></div><div class="b"></div><div class="l"></div><div class="r"></div><div class="fl"></div>
-      <span class="goal" style="margin-left:-60px;margin-top:-50px">Goal: 10 leads</span><span class="goal" style="margin-left:10px;margin-top:-10px;animation-delay:.8s">Boss: first client</span><span class="goal" style="margin-left:-40px;margin-top:30px;animation-delay:1.6s">Quest: install a workflow</span></div></div>
-      <p class="note">Concept preview. Your goals float in the room and the house layout becomes your in-game interior.</p><button class="btn" id="m-close" type="button">Close</button>`);
-  });
-
-  $("#den").addEventListener("click", () => {
-    S.den = !S.den; $("#den").textContent = "Denizen: " + (S.den ? "ON" : "off"); $("#den").setAttribute("aria-pressed", S.den); $("#den").classList.toggle("solid", S.den);
-    $("#den-n").textContent = S.den ? "Agent counts and feed speed doubled." : "Doubles agent counts and feed speed."; startFeed(); toast(S.den ? "Denizen on: swarm at full power" : "Denizen off");
-  });
-
-  /* ---------- MARVIN core orb ---------- */
-  (function orb() {
-    const c = $("#orb"), x = c.getContext("2d"); let W, H, t = 0;
-    const pts = Array.from({ length: 90 }, (_, i) => ({ a: i / 90 * Math.PI * 2, r: 70 + (i % 3) * 14, s: 0.2 + (i % 5) * 0.06 }));
-    function fit() { const r = c.getBoundingClientRect(); W = c.width = Math.max(1, r.width * devicePixelRatio); H = c.height = Math.max(1, r.height * devicePixelRatio); }
-    function draw() {
-      if (document.hidden) { requestAnimationFrame(draw); return; }
-      x.clearRect(0, 0, W, H); t += 0.01; const k = devicePixelRatio;
-      pts.forEach((p) => { const a = p.a + t * p.s, rr = p.r * k * (1 + 0.05 * Math.sin(t * 3 + p.a * 4)); x.fillStyle = "rgba(255,80,88," + (0.35 + 0.5 * Math.abs(Math.sin(a * 2))) + ")"; x.beginPath(); x.arc(W / 2 + Math.cos(a) * rr * 1.5, H / 2 + Math.sin(a) * rr * 0.85, 2 * k, 0, 7); x.fill(); });
-      if (!matchMedia("(prefers-reduced-motion:reduce)").matches) requestAnimationFrame(draw);
+  function secMeeting(d) {
+    const m = d.meeting; if (!m) return "";
+    return `<section class="sec" id="sec-meeting"><div class="sec-h"><h2>Next meeting</h2><small>${esc(m.when)} · Demo Data</small></div><div class="mt-row"><div><b style="font-size:17px">${esc(m.title)}</b><div class="note" style="color:var(--soft)">${esc(m.starts)} · ${esc(m.room)}</div><div class="avs">${m.attendees.map((a) => `<span class="av sm" title="${esc(a[0])}, ${esc(a[1])}">${esc(a[0].split(" ").map((w) => w[0]).join(""))}</span>`).join("")}</div></div><div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="meet-brief" type="button">Open briefing</button><button class="btn primary" id="meet-now" type="button">▶ Start meeting now</button></div></div></section>`;
+  }
+  function greet(d) {
+    return `<div class="greet"><div><h1>Good morning, ${esc(d.user.name.split(" ")[0])}</h1><p>${esc(d.summaryLine)}</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="g-tour" type="button">Restart tutorial</button><button class="btn primary" id="g-marvin" type="button">🎙️ Ask MARVIN</button></div></div>`;
+  }
+  function renderPage() {
+    const d = cur(), v = S.view; let h = "";
+    if (v === "home") h = greet(d) + `<div id="dash" style="display:flex;flex-direction:column;gap:22px">${secKpis(d)}<div class="grid2">${secPriority(d)}${secRec(d)}</div></div>${secMeeting(d)}<div class="grid2">${secFiles(d, false)}${secActivity(d, 5)}</div>${secWorkers(d, true)}${secFuture()}`;
+    else if (v === "workspace") h = greet(d) + `<div id="dash" style="display:flex;flex-direction:column;gap:22px">${secKpis(d)}<section class="sec"><div class="sec-h"><h2>Workspace overview</h2></div><div class="ws-info"><div><small>Workspace</small><b>${esc(d.workspace)}</b></div><div><small>Owner</small><b>${esc(d.user.name)} · ${esc(d.user.role)}</b></div><div><small>Files · workers</small><b>${d.files.length} files · ${d.workers.length} workers</b></div></div></section><div class="grid2">${secPriority(d)}${secRec(d)}</div></div>`;
+    else if (v === "files") h = `<div class="greet"><div><h1>Files</h1><p>${esc(d.workspace)} · demo data</p></div></div>${secFiles(d, true)}`;
+    else if (v === "tasks") h = `<div class="greet"><div><h1>Tasks</h1><p>Your open tasks for ${esc(d.short)}.</p></div></div><section class="sec" id="sec-tasks">${d.tasks.map((t, i) => { const dn = (S.done[S.ind] || {})[i]; return `<label class="task ${dn ? "done" : ""}"><input type="checkbox" data-task="${i}" ${dn ? "checked" : ""}><span class="t">${esc(t[0])}</span><small>${esc(t[1])}</small><button class="link" type="button" data-file="${t[2]}">Open file ›</button></label>`; }).join("")}</section>` + secPriority(d, "Priority items");
+    else if (v === "automation") h = `<div class="greet"><div><h1>Automation</h1><p>Workflows keep running while activity stays visible.</p></div></div>${secWorkers(d, true, "automation")}`;
+    else if (v === "workers") h = `<div class="greet"><div><h1>Workers</h1><p>Specialized workers for ${esc(d.short)}. Simulated for the demo.</p></div></div>${secWorkers(d, false)}`;
+    else if (v === "activity") h = `<div class="greet"><div><h1>Activity</h1><p>Everything MARVIN and the workers did, in one place.</p></div></div>${secActivity(d, 0)}`;
+    else if (v === "analytics") {
+      const by = {}; d.files.forEach((f) => { by[stClass(f.status)] = (by[stClass(f.status)] || 0) + 1; });
+      h = `<div class="greet"><div><h1>Analytics</h1><p>A quick read on ${esc(d.short)}. Demo data.</p></div></div>${secKpis(d)}<section class="sec"><div class="sec-h"><h2>Files by status</h2></div><div class="barchart">${Object.entries(by).map(([k, n]) => `<div class="r"><span>${esc(k)}</span><div class="bar"><i style="width:${n / d.files.length * 100}%"></i></div><span>${n} of ${d.files.length}</span></div>`).join("")}</div></section>`;
     }
-    fit(); window.addEventListener("resize", fit); draw();
-  })();
+    $("#page").innerHTML = h;
+    wirePage();
+  }
+  function wirePage() {
+    const p = $("#page");
+    $$("[data-file]", p).forEach((b) => b.addEventListener("click", (e) => { e.preventDefault(); if (b.dataset.meeting) openMeeting("brief"); else openFile(+b.dataset.file); }));
+    const mb = $("#meet-brief"); if (mb) mb.addEventListener("click", () => openMeeting("brief"));
+    const mn = $("#meet-now"); if (mn) mn.addEventListener("click", () => openMeeting("live"));
+    $$("[data-view]", p).forEach((b) => b.addEventListener("click", () => go("#/" + S.ind + "/" + b.dataset.view)));
+    $$("[data-cat]", p).forEach((b) => b.addEventListener("click", () => { S.cat = b.dataset.cat; renderPage(); }));
+    $$("[data-future]", p).forEach((b) => b.addEventListener("click", () => openFuture(+b.dataset.future)));
+    $$("[data-task]", p).forEach((c) => c.addEventListener("change", () => { (S.done[S.ind] = S.done[S.ind] || {})[+c.dataset.task] = c.checked; renderPage(); renderNav(); }));
+    const gt = $("#g-tour"); if (gt) gt.addEventListener("click", () => startTour());
+    const gm = $("#g-marvin"); if (gm) gm.addEventListener("click", () => openDrawer());
+    const ra = $("#rec-ask"); if (ra) ra.addEventListener("click", () => { openDrawer(); setTimeout(() => ask(D.industries[S.ind].chips[0][1]), 250); });
+  }
 
-  /* ---------- highlight all + guided tour ---------- */
-  $("#hl-btn").addEventListener("click", () => { document.body.classList.toggle("hl"); toast(document.body.classList.contains("hl") ? "Every button is outlined and numbered" : "Highlights off"); });
-  let ti = -1;
-  const spot = $("#spot"), tip = $("#tip");
-  function place(el) {
-    const r = el.getBoundingClientRect(), pad = 6;
-    Object.assign(spot.style, { display: "block", left: r.left - pad + "px", top: r.top - pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" });
-    tip.style.display = "block"; const th = tip.offsetHeight, tw = tip.offsetWidth;
-    let top = r.bottom + 14; if (top + th > innerHeight - 8) top = Math.max(8, r.top - th - 14);
-    let left = Math.min(Math.max(8, r.left + r.width / 2 - tw / 2), innerWidth - tw - 8);
-    tip.style.top = top + "px"; tip.style.left = left + "px";
+  /* ---------- modal + file preview ---------- */
+  function openModal(html) { $("#mbox").innerHTML = html; $("#modal").classList.add("on"); const c = $("[data-close]", $("#mbox")); if (c) c.focus(); }
+  function closeModal() { clearInterval(S.meetT); $("#modal").classList.remove("on"); $("#mbox").innerHTML = ""; }
+  $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal" || e.target.hasAttribute("data-close")) closeModal(); });
+  function previewText(f) {
+    const p = f.prev, out = [p.head + " · " + p.sub, "DEMO PREVIEW. This file is mock data."];
+    (p.fields || []).forEach((x) => out.push(x[0] + ": " + x[1]));
+    (p.blocks || []).forEach((x) => out.push("", x[0] + ": " + x[1]));
+    if (p.table) { out.push("", p.table.cols.join(" | ")); p.table.rows.forEach((r) => out.push(r.join(" | "))); }
+    (p.slides || []).forEach((s, i) => out.push("Slide " + (i + 1) + ": " + s));
+    return out.join("\n");
   }
-  function showStep(i) {
-    if (i < 0) i = 0; if (i >= TOUR.length) { endTour(); return; }
-    ti = i; const s = TOUR[i];
-    $("#tip-n").textContent = "Step " + (i + 1) + " of " + TOUR.length + " · " + (s.screen == null ? "header" : "screen " + (s.screen + 1));
-    $("#tip-h").textContent = s.name; $("#tip-p").textContent = s.does; $("#tip-n2").textContent = i === TOUR.length - 1 ? "Finish" : "Next";
-    if (s.screen != null) goTo(s.screen);
+  function openFile(i) {
+    const d = cur(), f = d.files[i], p = f.prev, e = ext(f.name);
+    let paper = `<h3>${esc(p.head)}</h3><div class="sub">${esc(p.sub)}</div>`;
+    if (p.fields) paper += `<div class="fl2">${p.fields.map((x) => `<div><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join("")}</div>`;
+    (p.blocks || []).forEach((b) => { paper += `<h4>${esc(b[0])}</h4><p>${esc(b[1])}</p>`; });
+    if (p.table) paper += `<table><tr>${p.table.cols.map((c) => `<th>${esc(c)}</th>`).join("")}</tr>${p.table.rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`;
+    const slides = (p.slides || []).map((s, k) => `<div class="slide"><small style="opacity:.6">Slide ${k + 1}</small><br>${esc(s)}</div>`).join("");
+    const act = (p.activity || []).concat(d.activity.filter((a) => a[0].toLowerCase().includes(f.cat.toLowerCase().slice(0, 4))).map((a) => a[0])).slice(0, 3);
+    openModal(`<div class="m-h"><span class="ftype ${e}">${e.toUpperCase()}</span><div style="flex:1;min-width:0"><b>${esc(f.name)}</b><small>${esc(f.cat)} · ${esc(f.size)} · Mock preview</small></div><span class="st ${stClass(f.status)}">${esc(f.status)}</span><button class="btn sm" data-close type="button" id="pv-close">Close</button></div>
+      <div class="m-body"><div>${e === "pptx" ? slides : `<div class="paper">${paper}</div>`}</div>
+      <div class="m-side"><div class="blk"><h4>Details</h4><div class="note" style="color:var(--soft)">Owner: ${esc(f.owner)}<br>Modified: ${esc(f.mod)}<br>Category: ${esc(f.cat)}<br>Size: ${esc(f.size)}</div></div>
+      <div class="blk msum"><div class="who"><span class="orb"></span>MARVIN SUMMARY</div><p style="color:var(--text);font-size:14px">${esc(p.summary)}</p><p class="note" style="color:var(--muted);margin-top:6px">Simulated summary.</p></div>
+      ${p.related && p.related.length ? `<div class="blk"><h4>Related files</h4>${p.related.map((r) => `<button class="rel" type="button" data-rel="${r}"><span class="ftype ${ext(d.files[r].name)}" style="width:28px;height:32px;font-size:8px">${ext(d.files[r].name).toUpperCase()}</span>${esc(d.files[r].name)}</button>`).join("")}</div>` : ""}
+      ${act.length ? `<div class="blk"><h4>Activity</h4><ul class="tl">${act.map((a) => `<li><i></i><span>${esc(a)}</span></li>`).join("")}</ul></div>` : ""}
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm primary" type="button" id="pv-ask">🎙️ Ask MARVIN</button><button class="btn sm" type="button" id="pv-dl">Download preview</button></div></div></div>`);
+    $$("[data-rel]", $("#mbox")).forEach((b) => b.addEventListener("click", () => openFile(+b.dataset.rel)));
+    $("#pv-ask").addEventListener("click", () => { closeModal(); openDrawer(); setTimeout(() => ask("Summarize " + f.name.replace(/\.\w+$/, "").replace(/_/g, " ") + "."), 250); });
+    $("#pv-dl").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([previewText(f)], { type: "text/plain" })); a.download = f.name + ".demo-preview.txt"; document.body.appendChild(a); a.click(); a.remove(); toast("Downloaded a text preview of the mock file"); });
+  }
+  function openMeeting(mode) {
+    const d = cur(), m = d.meeting; if (!m) return; clearInterval(S.meetT);
+    if (mode === "live") return meetLive();
+    openModal(`<div class="m-h"><span class="ftype pptx" style="font-size:18px">📅</span><div style="flex:1;min-width:0"><b>${esc(m.title)}</b><small>${esc(m.when)} · ${esc(m.starts)} · ${esc(m.room)} · Demo Data</small></div><button class="btn sm" data-close type="button" id="mt-close">Close</button></div>
+      <div class="m-body"><div><div class="blk"><h4>Agenda</h4><ul class="tl">${m.agenda.map((a) => `<li><i></i><span><b>${esc(a[1])}</b><br><small style="color:var(--muted)">${esc(a[0])} · ${esc(a[2])}</small></span></li>`).join("")}</ul></div>
+        <div class="blk msum"><div class="who"><span class="orb"></span>MARVIN TALKING POINTS</div><ul style="margin:6px 0 0;padding-left:18px">${m.talking.map((t) => `<li style="margin:4px 0">${esc(t)}</li>`).join("")}</ul><p class="note" style="color:var(--muted);margin-top:6px">Simulated brief.</p></div></div>
+      <div class="m-side"><div class="blk"><h4>Attendees</h4>${m.attendees.map((a) => `<div class="note" style="color:var(--soft)">${esc(a[0])} · ${esc(a[1])}</div>`).join("")}</div>
+        <div class="blk"><h4>Pre-read</h4>${m.preread.map((r) => `<button class="rel" type="button" data-rel="${r}"><span class="ftype ${ext(d.files[r].name)}" style="width:28px;height:32px;font-size:8px">${ext(d.files[r].name).toUpperCase()}</span>${esc(d.files[r].name)}</button>`).join("")}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm primary" type="button" id="meet-play">🔊 Play briefing</button><button class="btn sm primary" type="button" id="meet-start">▶ Start meeting now</button><button class="btn sm" type="button" id="meet-prepared">Mark prepared</button></div></div></div>`);
+    $$("[data-rel]", $("#mbox")).forEach((b) => b.addEventListener("click", () => openFile(+b.dataset.rel)));
+    $("#meet-play").addEventListener("click", () => { Voice.speak(m.spoken); toast("Playing the simulated briefing"); });
+    $("#meet-start").addEventListener("click", () => meetLive());
+    $("#meet-prepared").addEventListener("click", (e) => { (S.done[S.ind] = S.done[S.ind] || {})[2] = true; e.target.textContent = "Prepared ✓"; renderNav(); toast("Marked prepared. The task was checked off."); });
+  }
+  function meetLive() {
+    const d = cur(), m = d.meeting; let i = 0; const cap = [];
+    openModal(`<div class="m-h"><span class="livedot"></span><div style="flex:1;min-width:0"><b>LIVE · ${esc(m.title)}</b><small id="mt-state">Simulated meeting. MARVIN is listening and taking notes. Demo Data</small></div><button class="btn sm primary" type="button" id="meet-end">■ End meeting</button></div>
+      <div class="m-body"><div class="blk"><h4>Live transcript</h4><div id="mt-tr" class="trbox"></div></div><div class="m-side"><div class="blk msum"><div class="who"><span class="orb"></span>MARVIN CAPTURED</div><div id="mt-cap" class="note" style="color:var(--soft)">Decisions and actions appear here.</div></div></div></div>`);
+    const tick = () => {
+      if (i >= m.live.length) { clearInterval(S.meetT); const s = $("#mt-state"); if (s) s.textContent = "Agenda covered. End the meeting to get notes."; return; }
+      const l = m.live[i], box = $("#mt-tr"); if (!box) { clearInterval(S.meetT); return; }
+      box.insertAdjacentHTML("beforeend", `<div class="trl"><b>${esc(l[0])}</b> ${esc(l[1])}</div>`); box.scrollTop = 1e6;
+      m.captured.filter((c) => c[0] === i).forEach((c) => { cap.push(c); $("#mt-cap").innerHTML = cap.map((k) => `<div class="capi"><span class="st ${k[1] === "DECISION" ? "Approved" : "Pending"}">${k[1]}</span> ${esc(k[2])}</div>`).join(""); });
+      i++;
+    };
+    tick(); S.meetT = setInterval(tick, 1300);
+    $("#meet-end").addEventListener("click", () => {
+      clearInterval(S.meetT);
+      $("#mbox").innerHTML = `<div class="m-h"><div style="flex:1"><b>Meeting notes</b><small>${esc(m.title)} · generated by MARVIN · Simulated</small></div><button class="btn sm" data-close type="button" id="mt-close">Close</button></div>
+        <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px"><div class="msum"><div class="who"><span class="orb"></span>MARVIN SUMMARY</div><p style="color:var(--text)">${esc(m.summary)}</p></div>
+        <div>${m.captured.map((k) => `<div class="capi"><span class="st ${k[1] === "DECISION" ? "Approved" : "Pending"}">${k[1]}</span> ${esc(k[2])}</div>`).join("")}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" type="button" id="meet-save">Save notes to workspace</button><button class="btn sm" type="button" id="meet-speak">🔊 Speak summary</button></div></div>`;
+      $("#meet-speak").addEventListener("click", () => Voice.speak(m.summary));
+      $("#meet-save").addEventListener("click", () => { d.activity.unshift(["MARVIN generated the leadership meeting notes (4 items)", "just now"]); d.files[2].status = "Updated"; d.files[2].mod = "Today"; (S.done[S.ind] = S.done[S.ind] || {})[2] = true; closeModal(); renderPage(); renderNav(); toast("Notes saved to Leadership_Meeting_Notes.docx (mock)"); });
+    });
+  }
+  function openFuture(i) {
+    const f = D.future[i];
+    openModal(`<div class="m-h"><div style="flex:1"><span class="fbadge">${esc(f.badge)}</span><b style="margin-top:8px">${esc(f.t)}</b></div><button class="btn sm" data-close type="button">Close</button></div><div style="padding:0">${art(f.v, true).replace("<svg", '<svg style="display:block;width:100%;height:auto"')}</div><div style="padding:18px 22px"><p>${esc(f.d)}</p><p class="disc">Concept visualization. Not representative of currently shipped functionality.</p></div>`);
+  }
+
+  /* ---------- MARVIN ---------- */
+  const Voice = {
+    supported: () => "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined",
+    speak(text, onEnd) {
+      window.__speakCount++; window.__lastSpoken = text;
+      if (!Voice.supported()) { toast("Voice playback is not supported in this browser. The text answer is shown."); if (onEnd) onEnd(); return false; }
+      try {
+        speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 1; u.pitch = 0.95;
+        u.onstart = () => setStatus("Speaking…", "speaking"); u.onend = u.onerror = () => { setStatus("Ready"); if (onEnd) onEnd(); };
+        speechSynthesis.speak(u); setStatus("Speaking…", "speaking"); return true;
+      } catch (e) { setStatus("Ready"); return false; }
+    },
+    stop() { if (Voice.supported()) speechSynthesis.cancel(); setStatus("Ready"); }
+  };
+  function setStatus(t, cls) { $("#d-status").textContent = t; $("#d-h").className = "d-h" + (cls ? " " + cls : ""); S.speaking = cls === "speaking"; S.listening = cls === "listening"; }
+  function openDrawer() { $("#drawer").classList.add("on"); $("#scrim").classList.add("on"); $("#drawer").setAttribute("aria-hidden", "false"); setTimeout(() => $("#d-in").focus(), 320); }
+  function closeDrawer() { $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true"); Voice.stop(); stopWave(); $("#mic").classList.remove("on"); }
+  $("#marvin-fab").addEventListener("click", () => ($("#drawer").classList.contains("on") ? closeDrawer() : openDrawer()));
+  $("#d-close").addEventListener("click", closeDrawer);
+  $("#scrim").addEventListener("click", closeDrawer);
+  function renderSuggestions() { $("#sugg").innerHTML = cur().chips.map((c, i) => `<button class="sq" type="button" id="sq-${i}" data-q="${esc(c[1])}">${esc(c[1])}</button>`).join(""); $$("#sugg .sq").forEach((b) => b.addEventListener("click", () => ask(b.dataset.q))); }
+  function chat() { return (S.chats[S.ind] = S.chats[S.ind] || []); }
+  function renderConvo() {
+    const c = chat(), d = cur();
+    if (!c.length) c.push({ who: "bot", text: `Ready. I'm watching ${d.short}. Ask me what needs attention, or pick a suggestion.`, files: [], greeting: true });
+    $("#convo").innerHTML = c.map((m, i) => bubble(m, i)).join(""); $("#convo").scrollTop = 1e6; wireConvo();
+  }
+  function bubble(m, i) {
+    if (m.who === "me") return `<div class="bub me"><span class="tag">YOU</span>${esc(m.text)}</div>`;
+    const d = cur();
+    return `<div class="bub bot"><span class="tag">MARVIN · SIMULATED RESPONSE</span><span class="txt">${esc(m.text)}</span>${m.greeting ? "" : `<div class="acts"><button class="btn sm primary" type="button" data-speak="${i}">🔊 Speak Response</button>${m.meeting ? `<button class="btn sm" type="button" data-meet="1">📅 Open meeting briefing</button>` : ""}${(m.files || []).map((f) => `<button class="btn sm" type="button" data-bfile="${f}">${esc(d.files[f].name)}</button>`).join("")}</div>`}</div>`;
+  }
+  function wireConvo() {
+    $$("[data-speak]", $("#convo")).forEach((b) => b.addEventListener("click", () => { const m = chat()[+b.dataset.speak]; if (S.speaking) { Voice.stop(); b.textContent = "🔊 Speak Response"; } else Voice.speak(m.text, () => { b.textContent = "🔊 Speak Response"; }); if (S.speaking) b.textContent = "⏹ Stop"; }));
+    $$("[data-meet]", $("#convo")).forEach((b) => b.addEventListener("click", () => { closeDrawer(); openMeeting("brief"); }));
+    $$("[data-bfile]", $("#convo")).forEach((b) => b.addEventListener("click", () => { closeDrawer(); openFile(+b.dataset.bfile); }));
+  }
+  function match(text) {
+    const d = cur(), keys = Object.keys(d.marvin);
+    const chip = d.chips.find((c) => c[1] === text); if (chip) return chip[0];
+    for (const k of keys) if (D.keywords[k] && D.keywords[k].test(text)) return k;
+    return null;
+  }
+  function ask(text, opts) {
+    opts = opts || {}; text = (text || "").trim(); if (!text) return;
+    if (!$("#drawer").classList.contains("on")) openDrawer();
+    chat().push({ who: "me", text }); renderConvo(); setStatus("Thinking…");
     setTimeout(() => {
-      const el = $(s.sel) || (s.alt && $(s.alt)); if (!el) { showStep(i + 1); return; }
-      if (s.sel.indexOf("#arr") !== 0 && s.sel.indexOf("-btn") < 0) el.scrollIntoView({ block: "center", inline: "center", behavior: "auto" });
-      setTimeout(() => place(el), 60);
-    }, narrow() ? 380 : 40);
+      const k = match(text), d = cur(), r = k ? d.marvin[k] : null;
+      chat().push({ who: "bot", text: r ? r[0] : D.fallbackMarvin, files: r ? r[1] : [], meeting: !!(k === "meeting" && d.meeting) });
+      renderConvo(); setStatus("Ready");
+      if (opts.autoSpeak && r) Voice.speak(r[0]);
+    }, 700);
   }
-  function endTour() { ti = -1; spot.style.display = "none"; tip.style.display = "none"; }
-  window.startTour = () => showStep(0);
-  $("#tour-btn").addEventListener("click", () => showStep(0));
-  $("#tip-n2").addEventListener("click", () => showStep(ti + 1));
-  $("#tip-b").addEventListener("click", () => showStep(ti - 1));
-  $("#tip-x").addEventListener("click", endTour);
+  $("#d-form").addEventListener("submit", (e) => { e.preventDefault(); const v = $("#d-in").value; $("#d-in").value = ""; ask(v); });
+  /* mic: simulated listening, waveform, scripted request */
+  let waveRaf = 0;
+  function startWave() { const c = $("#wave"), x = c.getContext("2d"); c.classList.add("on"); const t0 = performance.now();
+    (function f(t) { x.clearRect(0, 0, c.width, c.height); const n = 40; for (let i = 0; i < n; i++) { const a = Math.abs(Math.sin((t - t0) / 160 + i * .55)) * (0.35 + 0.65 * Math.abs(Math.sin(i * 1.7 + (t - t0) / 420))); x.fillStyle = "rgba(79,140,255," + (.45 + a * .5) + ")"; const h = 4 + a * 36; x.fillRect(8 + i * 9.8, (c.height - h) / 2, 5, h); } waveRaf = requestAnimationFrame(f); })(t0); }
+  function stopWave() { cancelAnimationFrame(waveRaf); const c = $("#wave"); c.classList.remove("on"); }
+  $("#mic").addEventListener("click", () => {
+    if (S.listening) return;
+    Voice.stop(); $("#mic").classList.add("on"); setStatus("Listening…", "listening"); startWave();
+    $("#d-in").placeholder = "Listening…";
+    setTimeout(() => { stopWave(); $("#mic").classList.remove("on"); $("#d-in").placeholder = "Ask MARVIN…"; setStatus("Ready"); ask(cur().chips[0][1], { autoSpeak: true }); }, 1900);
+  });
+  $("#convo").addEventListener("scroll", () => {});
+
+  /* ---------- tutorial ---------- */
+  let ti = -1;
+  const spot = $("#spot"), tcard = $("#tcard");
+  function startTour() { if (S.ind === null) { go("#/construction"); return; } closeDrawer(); closeModal(); $("#tour").classList.add("on"); showStep(0); }
+  function endTour(done) { ti = -1; $("#tour").classList.remove("on"); spot.style.display = "none"; if (done !== false) store("nexen_demo_tour_done", "1"); }
+  function showStep(i) {
+    const st = D.tutorial[i]; ti = i;
+    $("#t-step").textContent = "STEP " + (i + 1) + " OF " + D.tutorial.length; $("#t-h").textContent = st.t; $("#t-p").textContent = st.d;
+    $("#t-dots").innerHTML = D.tutorial.map((_, k) => `<i class="${k <= i ? "on" : ""}"></i>`).join("");
+    $("#t-back").style.display = i === 0 ? "none" : ""; $("#t-skip").style.display = i === D.tutorial.length - 1 ? "none" : "";
+    $("#t-next").textContent = i === D.tutorial.length - 1 ? "Finish" : "Next"; $("#t-try").style.display = i === 2 || i === D.tutorial.length - 1 ? "" : "none";
+    const el = st.target ? $(st.target) : null;
+    if (el && el.offsetParent !== null || (el && getComputedStyle(el).position === "fixed")) {
+      if (el.id !== "marvin-fab") el.scrollIntoView({ block: el.getBoundingClientRect().height > innerHeight * 0.7 ? "start" : "center", behavior: "instant" });
+      setTimeout(() => placeCard(el), 120); setTimeout(() => { if (ti === i) placeCard(el); }, 450);
+    } else { spot.style.display = "none"; $("#veil").style.display = "block"; Object.assign(tcard.style, { left: "50%", top: "50%", transform: "translate(-50%,-50%)" }); }
+  }
+  function placeCard(el) {
+    const r = el.getBoundingClientRect(), pad = 8, vh = innerHeight, vw = innerWidth;
+    const top = Math.max(4, r.top - pad), height = Math.min(r.height + pad * 2, vh - top - 4);
+    $("#veil").style.display = "none";
+    Object.assign(spot.style, { display: "block", left: Math.max(4, r.left - pad) + "px", top: top + "px", width: Math.min(r.width + pad * 2, vw - 8) + "px", height: height + "px" });
+    tcard.style.transform = "none"; const ch = tcard.offsetHeight, cw = tcard.offsetWidth;
+    let y = top + height + 14; if (y + ch > vh - 8) y = Math.max(8, top - ch - 14); if (y < 8 || y + ch > vh) y = Math.max(8, vh - ch - 12);
+    let x = Math.min(Math.max(12, r.left + r.width / 2 - cw / 2), vw - cw - 12);
+    if (r.width > vw * .6) x = Math.max(12, (vw - cw) / 2);
+    tcard.style.left = x + "px"; tcard.style.top = y + "px";
+  }
+  $("#t-next").addEventListener("click", () => { if (ti >= D.tutorial.length - 1) endTour(); else showStep(ti + 1); });
+  $("#t-back").addEventListener("click", () => showStep(Math.max(0, ti - 1)));
+  $("#t-skip").addEventListener("click", () => endTour());
+  $("#t-try").addEventListener("click", () => { endTour(); openDrawer(); });
   window.addEventListener("resize", () => { if (ti >= 0) showStep(ti); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { if (ti >= 0) endTour(); closeModal(); }
-    if (ti >= 0 && e.key === "ArrowRight") showStep(ti + 1);
-    if (ti >= 0 && e.key === "ArrowLeft") showStep(ti - 1);
+    if (e.key === "Escape") { if (ti >= 0) endTour(); else if ($("#modal").classList.contains("on")) closeModal(); else if ($("#drawer").classList.contains("on")) closeDrawer(); }
+    if (ti >= 0 && e.key === "ArrowRight") $("#t-next").click();
+    if (ti >= 0 && e.key === "ArrowLeft" && ti > 0) $("#t-back").click();
   });
 
-  /* ---------- boot ---------- */
-  S.bossHp = D.dungeon.bossHp;
-  renderOnboarding(); renderIndustries(); renderPicker(); renderCourses(); renderVotes(); renderPlans(); renderNext(); renderApprovals();
-  renderDungeon(); renderSwarm(); renderLang(); renderRoad(); drawAb(0); drawQr(); kpis(); syncPager();
-  say("bot", "MARVIN online. This is the NEXEN demo: every button works on sample data. Press ▶ Tutorial for a guided tour.");
-  feedTick(); startFeed();
-  setInterval(() => { $("#clock").textContent = new Date().toLocaleTimeString(); }, 1000); $("#clock").textContent = new Date().toLocaleTimeString();
-  if (/^https?:/.test(location.protocol)) {
-    const ctl = new AbortController(); setTimeout(() => ctl.abort(), 1200);
-    fetch("/api/health", { signal: ctl.signal }).then((r) => (r.ok ? r.json() : Promise.reject())).then((h) => {
-      if (!h || !h.ok) return; S.live = true; const m = $("#mode"); m.textContent = "LIVE BACKEND"; m.classList.add("live"); $("#brain-src").textContent = h.vectors + " chunks · " + h.vector_source;
-    }).catch(() => { /* static hosting: stay on sample data */ });
-  }
+  window.startTour = startTour;
+  renderLanding(); route();
 })();

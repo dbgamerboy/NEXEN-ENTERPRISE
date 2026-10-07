@@ -1,6 +1,6 @@
-// Records the NEXEN ENTERPRISE V1 tutorial video (1920x1080, captions, visible cursor) with Playwright.
+// Records the NEXEN ENTERPRISE tutorial video (1920x1080, captions, visible cursor) with Playwright.
 // Run: node tools/record_tutorial_video.js   (env: PYTHON, PLAYWRIGHT_PATH, PW_CHANNEL=chrome)
-// Output: docs/video/NEXEN-ENTERPRISE-V1-tutorial.webm (voice is not recorded; MARVIN speech is browser audio)
+// Output: docs/video/NEXEN-ENTERPRISE-tutorial.webm (voice is not recorded; MARVIN speech is browser audio)
 const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
@@ -16,9 +16,9 @@ const INIT = () => {
   const mk = () => {
     if (document.getElementById("vcap")) return;
     const s = document.createElement("style");
-    s.textContent = `#vcap{pointer-events:none;position:fixed;left:50%;top:78px;transform:translateX(-50%);z-index:2147483000;background:rgba(8,9,12,.92);border:1px solid #ff6b71;color:#fff;font:700 28px/1.3 Inter,"Segoe UI",system-ui,sans-serif;padding:14px 28px;border-radius:14px;max-width:1300px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.6);transition:opacity .3s}
+    s.textContent = `#vcap{pointer-events:none;position:fixed;left:50%;top:78px;transform:translateX(-50%);z-index:2147483000;background:rgba(8,9,12,.92);border:1px solid #73c7ff;color:#fff;font:700 28px/1.3 Inter,"Segoe UI",system-ui,sans-serif;padding:14px 28px;border-radius:14px;max-width:1300px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.6);transition:opacity .3s}
     #vcap small{display:block;font:600 18px/1.3 Inter,"Segoe UI",sans-serif;color:#aab2c3;margin-top:4px}
-    #vcur{position:fixed;z-index:2147483001;width:26px;height:26px;border-radius:50%;background:rgba(255,59,67,.55);border:3px solid #fff;pointer-events:none;left:-50px;top:-50px;transform:translate(-50%,-50%);transition:transform .08s}
+    #vcur{position:fixed;z-index:2147483001;width:26px;height:26px;border-radius:50%;background:rgba(79,140,255,.55);border:3px solid #fff;pointer-events:none;left:-50px;top:-50px;transform:translate(-50%,-50%);transition:transform .08s}
     #vcur.d{transform:translate(-50%,-50%) scale(.6);background:rgba(255,255,255,.8)}`;
     document.head.appendChild(s);
     const c = document.createElement("div"); c.id = "vcap"; c.style.opacity = "0"; document.body.appendChild(c);
@@ -42,7 +42,7 @@ function narrate(webm, caps, secs) {
     wavs.push({ wav, ms: Math.max(0, c.t + 150) });
   });
   const ff = process.env.FFMPEG || "ffmpeg";
-  const mp4 = path.join(OUT, "NEXEN-ENTERPRISE-V1-tutorial.mp4");
+  const mp4 = path.join(OUT, "NEXEN-ENTERPRISE-tutorial.mp4");
   const inputs = ["-i", webm].concat(...wavs.map((w) => ["-i", w.wav]));
   const filt = wavs.map((w, i) => `[${i + 1}:a]adelay=${w.ms}|${w.ms}[a${i}]`).join(";") + ";" + wavs.map((_, i) => `[a${i}]`).join("") + `amix=inputs=${wavs.length}:normalize=0[aout]`;
   execFileSync(ff, ["-y", ...inputs, "-filter_complex", filt, "-map", "0:v", "-map", "[aout]", "-c:v", "libx264", "-preset", "fast", "-crf", "23", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-shortest", mp4], { stdio: "ignore" });
@@ -52,7 +52,7 @@ function narrate(webm, caps, secs) {
 
 async function main() {
   const srv = spawn(PY, ["-B", path.join(ROOT, "backend", "server.py")], { env: { ...process.env, NEXEN_PORT: String(PORT) }, stdio: "ignore" });
-  const base = `http://127.0.0.1:${PORT}/v2/`;
+  const base = `http://127.0.0.1:${PORT}/`;
   for (let i = 0; i < 40; i++) { try { if ((await fetch(base)).ok) break; } catch (e) { /* wait */ } await new Promise((r) => setTimeout(r, 150)); }
   const browser = await chromium.launch(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {});
   const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, recordVideo: { dir: OUT, size: { width: 1920, height: 1080 } } });
@@ -72,7 +72,7 @@ async function main() {
   const t0 = Date.now(), caps = [];
   try {
     await page.goto(base + "#/"); await page.waitForSelector("#cards .icard"); await page.mouse.move(960, 700);
-    await cap("NEXEN ENTERPRISE V1", "Pick an industry. Everything is demo data."); await beat(4600);
+    await cap("NEXEN ENTERPRISE", "Pick an industry. Everything is demo data."); await beat(4600);
     await go("#enter-construction"); await page.waitForSelector("#tour.on");
     await cap("A 5-step tutorial", "Back, Next, Skip or Try MARVIN"); await beat(3800);
     for (let i = 0; i < 5; i++) { await beat(2300); if (i < 4) await go("#t-next"); }
@@ -97,11 +97,11 @@ async function main() {
     await go("#pri-1"); await page.waitForSelector("#modal.on"); await beat(3000); await go("#pv-close"); await beat(500);
     await page.locator("#sec-future").scrollIntoViewIfNeeded(); await cap("Future development", "Concept previews. Not shipped today."); await beat(5200);
     await page.evaluate(() => document.querySelector("#main").scrollTo({ top: 0, behavior: "smooth" })); await go("#home-logo"); await page.waitForSelector("#cards .icard");
-    await cap("NEXEN ENTERPRISE V1", "Open. Understand. Ask MARVIN."); await beat(7000);
+    await cap("NEXEN ENTERPRISE", "Open. Understand. Ask MARVIN."); await beat(7000);
   } finally {
     const secs = Math.round((Date.now() - t0) / 1000);
     await ctx.close(); const v = await page.video().path(); await browser.close(); srv.kill();
-    const dest = path.join(OUT, "NEXEN-ENTERPRISE-V1-tutorial.webm");
+    const dest = path.join(OUT, "NEXEN-ENTERPRISE-tutorial.webm");
     if (fs.existsSync(dest)) fs.unlinkSync(dest);
     fs.renameSync(v, dest);
     fs.writeFileSync(path.join(OUT, "captions.json"), JSON.stringify(caps, null, 2));

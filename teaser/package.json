@@ -1,8 +1,7 @@
 {
-  "name": "nexen-enterprise-v1-teaser",
-  "version": "1.0.0",
+  "name": "nexen-enterprise-teaser",
   "private": true,
-  "description": "Remotion teaser for NEXEN ENTERPRISE V1 built from real Playwright captures",
+  "description": "Remotion teaser for NEXEN ENTERPRISE built from real Playwright captures",
   "scripts": {
     "capture": "node capture/capture.js",
     "studio": "remotion studio src/index.ts",
