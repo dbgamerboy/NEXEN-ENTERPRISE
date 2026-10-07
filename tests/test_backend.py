@@ -185,6 +185,9 @@ class ApiTests(unittest.TestCase):
         code, body = self.call("/")
         self.assertEqual(code, 200)
         self.assertIn(b"NEXEN Demo Build", body)
+        code, body = self.call("/v2/")
+        self.assertEqual(code, 200)
+        self.assertIn(b"NEXEN Workspace Demo", body)
         self.assertEqual(self.call("/../backend/server.py")[0], 404)
         self.assertEqual(self.call("/%2e%2e/backend/server.py")[0], 404)
 

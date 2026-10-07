@@ -1,5 +1,20 @@
 # NEXEN Demo Build
 
+## Workspace demo (v2): Construction, Corporate, Real Estate
+
+Open `http://127.0.0.1:8794/v2/` after `python backend/server.py`. One shell, three mock workspaces, file previews, MARVIN with simulated voice, a 5-step tutorial and FUTURE DEVELOPMENT concept cards. Guide: [docs/DEMO-GUIDE.md](docs/DEMO-GUIDE.md). Evidence: [docs/DEMO-RECEIPT.md](docs/DEMO-RECEIPT.md).
+
+![Construction](docs/img/v2/03-construction-home-1080p.png)
+
+```bash
+node tests/demo_qa.js        # 99 browser checks, writes docs/qa-results.json and screenshots
+node tools/demo_receipt.js   # writes docs/DEMO-RECEIPT.md
+```
+
+The first demo below (gamified HUD) is still served at `/`.
+
+---
+
 A clickable demo of the NEXEN triple-screen command HUD. Every button works on sample data. A small Python backend adds live vector search, workflow ROI scoring and a script runner.
 
 | | |

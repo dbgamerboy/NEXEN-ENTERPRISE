@@ -108,6 +108,8 @@ class Handler(BaseHTTPRequestHandler):
     def _static(self, rel: str):
         rel = "index.html" if rel in ("", "/") else rel.lstrip("/")
         target = (FRONTEND / rel).resolve()
+        if target.is_dir():
+            target = target / "index.html"
         if FRONTEND not in target.parents and target != FRONTEND or not target.is_file():
             self.send_response(404)
             self.end_headers()

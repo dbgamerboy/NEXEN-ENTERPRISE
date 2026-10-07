@@ -1,0 +1,622 @@
+{
+  "when": "2026-10-07T12:13:17.865Z",
+  "results": [
+    {
+      "area": "Landing",
+      "name": "headline and 3 industry cards render",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Landing",
+      "name": "each card has an ENTER WORKSPACE button and preview",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Landing",
+      "name": "no horizontal overflow at 1920",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Tutorial",
+      "name": "auto-opens on first run",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Tutorial",
+      "name": "step 1 card on screen",
+      "pass": true,
+      "detail": "{\"spot\":\"none\",\"cardIn\":true}"
+    },
+    {
+      "area": "Tutorial",
+      "name": "step 2 card on screen with spotlight",
+      "pass": true,
+      "detail": "{\"spot\":\"block\",\"cardIn\":true}"
+    },
+    {
+      "area": "Tutorial",
+      "name": "Back returns to step 1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Tutorial",
+      "name": "step 3 card on screen with spotlight",
+      "pass": true,
+      "detail": "{\"spot\":\"block\",\"cardIn\":true}"
+    },
+    {
+      "area": "Tutorial",
+      "name": "Try MARVIN button visible on the MARVIN step",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Tutorial",
+      "name": "step 4 card on screen with spotlight",
+      "pass": true,
+      "detail": "{\"spot\":\"block\",\"cardIn\":true}"
+    },
+    {
+      "area": "Tutorial",
+      "name": "step 5 card on screen",
+      "pass": true,
+      "detail": "{\"spot\":\"none\",\"cardIn\":true}"
+    },
+    {
+      "area": "Tutorial",
+      "name": "five steps in order",
+      "pass": true,
+      "detail": "Welcome to NEXEN|Your workspace|Meet MARVIN|Automation + workers|You're ready"
+    },
+    {
+      "area": "Tutorial",
+      "name": "Finish closes and remembers completion",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Tutorial",
+      "name": "restart works and Skip Tutorial closes it",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "workspace name is Riverside Tower Project",
+      "pass": true,
+      "detail": "Riverside Tower Project"
+    },
+    {
+      "area": "construction",
+      "name": "4 KPI cards incl. 82%",
+      "pass": true,
+      "detail": "82%\nProject Complete\nOn schedule · demo"
+    },
+    {
+      "area": "construction",
+      "name": "4 priority items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "recent files list (5) with status badges",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "5 simulated workers listed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "recent activity shows 5 entries",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "Files view lists all 8 files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "file preview opens with expected content",
+      "pass": true,
+      "detail": "missing: "
+    },
+    {
+      "area": "construction",
+      "name": "preview shows MARVIN Summary, details and related files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "preview closes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "MARVIN opens",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "MARVIN status is Ready",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "suggested prompt returns a relevant answer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "construction",
+      "name": "Speak Response triggers voice playback",
+      "pass": true,
+      "detail": "speakCount 0 to 1"
+    },
+    {
+      "area": "construction",
+      "name": "MARVIN closes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "mic shows Listening… and waveform",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "mic inserts scripted request, then shows MARVIN answer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "mic flow attempts voice playback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "typed question gets a matching answer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "unknown question gets a safe fallback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "typed input is escaped, not rendered as HTML",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "MARVIN",
+      "name": "Escape closes the drawer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Switching",
+      "name": "Construction to Corporate swaps workspace instantly",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "workspace name is Northstar Operations",
+      "pass": true,
+      "detail": "Northstar Operations"
+    },
+    {
+      "area": "corporate",
+      "name": "4 KPI cards incl. $4.8M",
+      "pass": true,
+      "detail": "$4.8M\nQ3 Revenue\n3.1% above plan · demo"
+    },
+    {
+      "area": "corporate",
+      "name": "4 priority items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "recent files list (5) with status badges",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "5 simulated workers listed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "recent activity shows 5 entries",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "Files view lists all 8 files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "file preview opens with expected content",
+      "pass": true,
+      "detail": "missing: "
+    },
+    {
+      "area": "corporate",
+      "name": "preview shows MARVIN Summary, details and related files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "preview closes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "MARVIN opens",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "MARVIN status is Ready",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "suggested prompt returns a relevant answer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "corporate",
+      "name": "Speak Response triggers voice playback",
+      "pass": true,
+      "detail": "speakCount 2 to 3"
+    },
+    {
+      "area": "corporate",
+      "name": "MARVIN closes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Switching",
+      "name": "Corporate to Real Estate swaps workspace instantly",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "workspace name is Evergreen Realty Group",
+      "pass": true,
+      "detail": "Evergreen Realty Group"
+    },
+    {
+      "area": "real-estate",
+      "name": "4 KPI cards incl. 18",
+      "pass": true,
+      "detail": "18\nActive Listings\n3 new this week · demo"
+    },
+    {
+      "area": "real-estate",
+      "name": "4 priority items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "recent files list (5) with status badges",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "5 simulated workers listed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "recent activity shows 5 entries",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "Files view lists all 8 files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "file preview opens with expected content",
+      "pass": true,
+      "detail": "missing: "
+    },
+    {
+      "area": "real-estate",
+      "name": "preview shows MARVIN Summary, details and related files",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "preview closes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "MARVIN opens",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "MARVIN status is Ready",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "suggested prompt returns a relevant answer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "real-estate",
+      "name": "Speak Response triggers voice playback",
+      "pass": true,
+      "detail": "speakCount 3 to 4"
+    },
+    {
+      "area": "real-estate",
+      "name": "MARVIN closes",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Switching",
+      "name": "each industry has unique KPI data",
+      "pass": true,
+      "detail": "{\"construction\":\"82%\\nProject Complete\\nOn schedule · demo|3\\nOpen RFIs\\n1 overdue · demo|$1.24M\\nRemaining Budget\\nChange order pending · demo|7\\nActive Subcontractors\\n2 on site today · demo\",\"corporate\":\"$4.8M\\nQ3 Revenue\\n3.1% above plan · demo|12\\nActive Projects\\n2 at risk · demo|91%\\nTasks On Track\\nUp 2 points · demo|4\\nItems Awaiting Approval\\n1 needs a signature · demo\",\"real-estate\":\"18\\nActive Listings\\n3 new this week · demo|6\\nPending Transactions\\n2 closing soon · demo|$12.8M\\nActive Pipeline\\nAcross 24 buyers · demo|3\\nClosings This Week\\nThu and Fri · demo\"}"
+    },
+    {
+      "area": "Routes",
+      "name": "hash route reflects workspace and view",
+      "pass": true,
+      "detail": "#/real-estate/home"
+    },
+    {
+      "area": "Navigation",
+      "name": "workspace view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "files view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "tasks view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "automation view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "workers view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "activity view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "analytics view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "home view renders content",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "task checkbox toggles and updates the badge",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "search filters the Files view",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Navigation",
+      "name": "notifications open with 4 items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Future",
+      "name": "section titled FUTURE DEVELOPMENT with 3 cards",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Future",
+      "name": "required titles and badges present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Future",
+      "name": "disclaimer text present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Future",
+      "name": "every concept image carries an in-image FUTURE DEVELOPMENT watermark",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Future",
+      "name": "future items are not in the sidebar navigation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Future",
+      "name": "concept card opens enlarged view with disclaimer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Labels",
+      "name": "no mocked feature labeled Live, Production, Connected, Verified or Operational",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "landing has no horizontal overflow",
+      "pass": true,
+      "detail": "390"
+    },
+    {
+      "area": "Narrow",
+      "name": "tutorial card fits in the viewport on every step",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "workspace has no horizontal overflow",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "menu opens and offers the industry switch",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "industry switch works from the menu",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "MARVIN drawer fits and answers",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "file preview fits",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Narrow",
+      "name": "tap targets at least 32px",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Laptop",
+      "name": "no horizontal overflow at 1366x768",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Console",
+      "name": "no console errors or page errors across all runs",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Assets",
+      "name": "no broken assets or failed requests",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "shots": [
+    "docs/img/v2/01-landing-1080p.png",
+    "docs/img/v2/02-tutorial-marvin-step.png",
+    "docs/img/v2/03-construction-home-1080p.png",
+    "docs/img/v2/04-construction-file-preview.png",
+    "docs/img/v2/05-marvin-response-construction.png",
+    "docs/img/v2/06-marvin-listening.png",
+    "docs/img/v2/03-corporate-home-1080p.png",
+    "docs/img/v2/04-corporate-file-preview.png",
+    "docs/img/v2/05-marvin-response-corporate.png",
+    "docs/img/v2/03-real-estate-home-1080p.png",
+    "docs/img/v2/04-real-estate-file-preview.png",
+    "docs/img/v2/05-marvin-response-real-estate.png",
+    "docs/img/v2/07-future-development.png",
+    "docs/img/v2/08-future-enlarged.png",
+    "docs/img/v2/09-narrow-landing.png",
+    "docs/img/v2/10-narrow-tutorial.png",
+    "docs/img/v2/11-narrow-home.png",
+    "docs/img/v2/12-narrow-menu.png",
+    "docs/img/v2/13-narrow-marvin.png",
+    "docs/img/v2/14-narrow-preview.png",
+    "docs/img/v2/15-laptop-realestate.png"
+  ]
+}

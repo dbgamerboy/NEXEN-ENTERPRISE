@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="NEXEN demo workspace: Construction, Corporate and Real Estate with MARVIN. Demo data.">
+<title>NEXEN Workspace Demo</title>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="land-in">
+    <div class="logo-row"><img src="../assets/logo.svg" alt="NEXEN logo"><b>NEXEN</b></div>
+    <div class="hero">
+      <h1>Your Business. <em>Connected.</em> Intelligent. Executable.</h1>
+      <p>A unified operating environment for your files, workflows, AI workers, automation and daily operations.</p>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="land-foot">Demo data and simulated responses. <button id="land-tour" type="button">Take the 60 second tour</button></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app" class="hide">
+  <aside id="side" aria-label="Navigation">
+    <button class="s-logo" id="home-logo" type="button" aria-label="Back to industry selection"><img src="../assets/logo.svg" alt=""><b>NEXEN</b></button>
+    <div id="nav"></div>
+    <div class="grow"></div>
+    <button class="nav marvin" id="nav-marvin" type="button"><span class="i">🎙️</span>MARVIN</button>
+    <button class="nav" id="nav-settings" type="button"><span class="i">⚙️</span>Settings</button>
+    <div class="demo-note">Demo data and simulated responses. Nothing here touches real systems.</div>
+  </aside>
+
+  <header id="top">
+    <button class="ham" id="ham" type="button" aria-label="Open menu">☰</button>
+    <div class="ws"><b id="ws-name"></b><small><i></i><span id="ws-sub"></span></small></div>
+    <div class="seg" id="seg" role="group" aria-label="Switch industry"></div>
+    <div class="search"><span>🔍</span><input id="search" type="text" placeholder="Search files" aria-label="Search files"></div>
+    <div style="flex:1"></div>
+    <span class="pill demo">DEMO DATA</span>
+    <button class="iconbtn" id="bell" type="button" aria-label="Notifications"><span>🔔</span><i class="dot"></i></button>
+    <button class="user" id="user" type="button" aria-label="Account menu"><span class="av" id="av"></span><div><b id="u-name"></b><small id="u-role"></small></div></button>
+  </header>
+
+  <main id="main"><div class="page" id="page"></div></main>
+</div>
+
+<button id="marvin-fab" class="hide" type="button" aria-label="Ask MARVIN"><span class="orb"></span><span class="lbl">Ask MARVIN</span><span>🎙️</span></button>
+
+<!-- MARVIN -->
+<div id="scrim"></div>
+<aside id="drawer" role="dialog" aria-label="MARVIN assistant" aria-hidden="true">
+  <div class="d-h" id="d-h"><span class="orb"></span><div style="flex:1"><b>MARVIN</b><small><i></i><span id="d-status">Ready</span> · Prototype Voice</small></div><button class="iconbtn" id="d-close" type="button" aria-label="Close MARVIN">✕</button></div>
+  <div id="convo" aria-live="polite"></div>
+  <canvas id="wave" width="400" height="46"></canvas>
+  <div class="sugg"><small>Suggested questions</small><div id="sugg" style="display:flex;flex-direction:column;gap:8px"></div></div>
+  <div class="d-f">
+    <form id="d-form"><button class="mic" id="mic" type="button" aria-label="Use microphone (simulated)">🎤</button><input id="d-in" type="text" placeholder="Ask MARVIN…" aria-label="Ask MARVIN" autocomplete="off"><button class="btn primary" id="d-send" type="submit">Ask</button></form>
+    <div class="note">Simulated response. The microphone is a demo: it inserts a sample question. Voice playback uses your browser.</div>
+  </div>
+</aside>
+
+<div id="modal" role="dialog" aria-modal="true"><div id="mbox"></div></div>
+
+<div id="tour"><div class="veil" id="veil"></div><div id="spot"></div>
+  <div id="tcard"><div class="step" id="t-step"></div><h3 id="t-h"></h3><p id="t-p"></p><div class="dots" id="t-dots"></div>
+    <div class="row"><button class="skip" id="t-skip" type="button">Skip Tutorial</button><button class="btn sm" id="t-back" type="button">Back</button><button class="btn sm primary" id="t-next" type="button">Next</button><button class="btn sm primary" id="t-try" type="button">Try MARVIN</button></div></div></div>
+<div id="toast" role="status"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
