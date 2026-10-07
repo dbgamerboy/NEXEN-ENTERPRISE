@@ -1,111 +1,85 @@
-# NEXEN ENTERPRISE V1
+﻿# NEXEN ENTERPRISE V1
 
-A premium frontend demo of NEXEN for Construction, Corporate and Real Estate, with MARVIN as the AI interface. Demo data only.
+## CANONICAL DEMO — BUSINESS / INVESTOR VERSION
 
-## Workspace demo: Construction, Corporate, Real Estate
+**Use this demo for presentations. Do not infer the current demo from folder version numbers.**
 
-Open `http://127.0.0.1:8794/v2/` after `python backend/server.py`. One shell, three mock workspaces, file previews, MARVIN with simulated voice, a 5-step tutorial and FUTURE DEVELOPMENT concept cards. Guide: [docs/DEMO-GUIDE.md](docs/DEMO-GUIDE.md). Evidence: [docs/DEMO-RECEIPT.md](docs/DEMO-RECEIPT.md).
+| Item | Canonical value |
+|---|---|
+| Audience | Business owners, operators, investors |
+| Source | `frontend/v2/` |
+| Primary route | `/v2/#/construction` |
+| Local demo | `http://127.0.0.1:8795/v2/#/construction` |
+| Public demo | `https://dbgamerboy.github.io/NEXEN-ENTERPRISE-V1-PAGES/v2/#/construction` |
+| Data | Demo data + simulated responses only |
+| Identity file | `DEMO_TARGET.json` |
 
-![Construction](docs/img/v2/03-construction-home-1080p.png)
+The business demo is one NEXEN shell with **Construction, Corporate and Real Estate** workspaces, file previews, tasks, automation, workers, analytics, MARVIN, a guided tour, and clearly labeled future-development concepts.
 
-**Tutorial video (107 seconds, 1080p, narrated with the Windows voice):** [docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4](docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4). Re-record with `node tools/record_tutorial_video.js` (needs ffmpeg in the FFMPEG env var).
+> **IMPORTANT:** the older gamified triple-screen HUD in the root of `frontend/` is a **legacy/internal demo**. It is **not** the investor/business presentation target and must not be deployed or presented as the canonical NEXEN demo.
 
-```bash
-node tests/demo_qa.js        # 106 browser checks, writes docs/qa-results.json and screenshots
-node tests/demo_buttons.js   # clicks every button and checkbox (514 on the last run, all passed), one per fresh load, about 10 minutes
-node tools/demo_receipt.js   # writes docs/DEMO-RECEIPT.md
+### Run the canonical demo locally
+
+```powershell
+$env:NEXEN_PORT = "8795"
+python -B backend/server.py
 ```
 
-The first demo below (the gamified triple-screen HUD, "NEXEN Demo Build") is still served at `/`.
+Then open:
 
----
-
-A clickable demo of the NEXEN triple-screen command HUD. Every button works on sample data. A small Python backend adds live vector search, workflow ROI scoring and a script runner.
-
-| | |
-|---|---|
-| ![1080p](docs/img/overview-1080p.png) | ![phone](docs/img/phone-screen-2.png) |
-
-**Status (2026-10-07):** 24 backend tests and 114 browser checks pass (1920x1080, 390x844 phone, no-backend file mode). All data in the UI is sample data, not results or earnings claims.
-
-## Try it
-
-```bash
-python backend/server.py          # http://127.0.0.1:8794/  (Python 3.10+, no installs)
+```text
+http://127.0.0.1:8795/v2/#/construction
 ```
 
-Or open `frontend/index.html` directly. Without the backend the page runs fully on sample data and shows a `SAMPLE DATA` badge. With the backend it shows `LIVE BACKEND`.
+The backend defaults to port 8794 when `NEXEN_PORT` is not set.
 
-On the owner's PC, `START-DEMO.cmd` points the backend at the real vector DB and the vetted scripts (paths below).
+### Demo evidence and QA
 
-## Three screens
+- Guide: [docs/DEMO-GUIDE.md](docs/DEMO-GUIDE.md)
+- Evidence receipt: [docs/DEMO-RECEIPT.md](docs/DEMO-RECEIPT.md)
+- Tutorial video: [docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4](docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4)
+- Construction screenshot: [docs/img/v2/03-construction-home-1080p.png](docs/img/v2/03-construction-home-1080p.png)
 
-| Screen | What is on it |
-|---|---|
-| 1 · LAUNCH | Onboarding videos, industry picker with exact n8n workflows, courses (pick 2), monthly hustle vote, plan perks, workflow ROI scorer |
-| 2 · MARVIN | Core orb, live counters, voice chat, one next action, approvals, agent recording feed, workflow runner, vector DB search |
-| 3 · GROW | RPG dungeon with boss and critical strike, login QR (demo), swarm scouts, translation, A/B retention lab, 6 product roadmap, VR room preview, Denizen mode |
+```bash
+node tests/demo_qa.js
+node tests/demo_buttons.js
+node tools/demo_receipt.js
+```
 
-**1080p:** all three screens sit side by side and each column scrolls inside itself, so the page never scrolls.
-**Phone:** one screen at a time. Use the side arrows, swipe, or the bottom tab bar.
+The most recent repository receipts record **106 browser QA checks** and **514/514 button and checkbox checks** passing for the workspace demo.
 
-## Tutorial with every button highlighted
+## Repository map
 
-- In the app: **▶ Tutorial** runs a spotlight tour of 26 buttons. **Highlight all** outlines and numbers every button.
-- On paper: [docs/TUTORIAL.md](docs/TUTORIAL.md) has a highlighted frame for each button.
-- Feature map from the pitch to the demo: [docs/FEATURES.md](docs/FEATURES.md).
+```text
+frontend/v2/      CANONICAL business/investor demo
+frontend/assets/  shared branding assets
+frontend/         legacy/internal HUD files also remain here for now
+backend/          local demo server + demo API
+data/             synthetic sample data
+docs/             demo guide, evidence, screenshots and tutorial video
+tests/            backend/browser/demo QA
+tools/            demo recording and documentation helpers
+```
+
+## Deployment rule
+
+The private repository is the **source of truth**.
+
+GitHub Pages is not available for this private repository on the current GitHub plan, so the public repository `dbgamerboy/NEXEN-ENTERPRISE-V1-PAGES` is a **deployment artifact only**. It must contain only the static business-demo assets required to present `frontend/v2/`; it is not a second source tree.
+
+**Do not create a V3/V4 demo folder to supersede this. Update the canonical target only after `DEMO_TARGET.json` is deliberately changed.**
 
 ## Backend
 
-`backend/server.py` serves the frontend and these endpoints (standard library only):
+`backend/server.py` serves the static frontend and the local demo API:
 
-| Endpoint | Does |
+| Endpoint | Purpose |
 |---|---|
-| `GET /api/health` | Mode, vector count and source, runnable modules |
-| `GET /api/search?q=` | Keyword search over `vectors.jsonl` with stemming and stopwords |
-| `POST /api/roi` | Golden Math: profit and repeatability give SCALE, HOLD or KILL |
-| `POST /api/breaker` | Self-healing circuit breaker with fallback route |
-| `POST /api/chunk` | Word-window chunker used before vector ingest |
-| `POST /api/module/run` | Runs an allowlisted vetted script in its own process |
+| `GET /api/health` | Demo mode, vector count/source, runnable modules |
+| `GET /api/search?q=` | Search sample or configured vector data |
+| `POST /api/roi` | Workflow ROI demo |
+| `POST /api/breaker` | Circuit-breaker/fallback demo |
+| `POST /api/chunk` | Text chunking demo |
+| `POST /api/module/run` | Allowlisted local module runner |
 
-Limits: body 64 KB (413 above that), binds to 127.0.0.1, module names are allowlisted and path-checked.
-
-### Wiring to the owner's real data (nothing personal is in this repo)
-
-| Env var | Points at | Default |
-|---|---|---|
-| `NEXEN_VECTOR_DIR` | Folder or file holding `vectors.jsonl`, for example `G:\My Drive\NEXEN_VECTOR_DB\jsonl-store\primary-70-data` | bundled synthetic sample |
-| `NEXEN_MODULES_DIR` | Vetted scripts, for example `H:\NEXEN_MODULES\_curated` | disabled |
-| `NEXEN_PORT` | Port | 8794 |
-
-The vector DB lives on Google Drive (G:) for faster access from every machine. The repo carries only a synthetic 14-chunk sample.
-
-## Cloud pieces
-
-| Piece | Where | Why |
-|---|---|---|
-| Vector DB (`vectors.jsonl`, backups) | Google Drive `G:\My Drive\NEXEN_VECTOR_DB\jsonl-store` | Shared, off the H: drive |
-| Static demo (`frontend/`) | GitHub Pages via `.github/workflows/pages.yml` | Free hosting, works with sample data. Needs a public repo on the free plan |
-| Tests | GitHub Actions via `.github/workflows/ci.yml` | Runs backend and browser tests on every push |
-
-## Tests
-
-```bash
-python -m unittest discover -s tests -v          # 24 backend tests
-npm i playwright && npx playwright install chromium
-node tests/ui_smoke.js                           # 114 UI checks
-node tools/build_docs.js                         # regenerates docs/TUTORIAL.md and docs/img
-```
-
-Env for the Node tools: `PYTHON` (interpreter), `PLAYWRIGHT_PATH`, `PW_CHANNEL=chrome` to use an installed Chrome.
-
-## Layout
-
-```
-frontend/   index.html, app.js, sample-data.js (all demo data + tutorial steps), assets/
-backend/    server.py, engine/ (roi, breaker, chunker, vectors, modules)
-data/       sample/vectors.sample.jsonl (synthetic)
-docs/       TUTORIAL.md, FEATURES.md, img/
-tests/      test_backend.py, ui_smoke.js
-tools/      build_docs.js
-```
+The server binds to `127.0.0.1`. Demo UI data is synthetic unless the owner explicitly starts the server with approved local data/module paths.

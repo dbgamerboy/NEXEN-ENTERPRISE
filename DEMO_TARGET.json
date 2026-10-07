@@ -1,0 +1,16 @@
+﻿{
+  "schema_version": 1,
+  "canonical": true,
+  "product": "NEXEN ENTERPRISE V1",
+  "audience": ["business owners", "operators", "investors"],
+  "source_path": "frontend/v2",
+  "entry_route": "/v2/#/construction",
+  "local_demo": "http://127.0.0.1:8795/v2/#/construction",
+  "public_demo": "https://dbgamerboy.github.io/NEXEN-ENTERPRISE-V1-PAGES/v2/#/construction",
+  "data_mode": "demo data and simulated responses",
+  "legacy_frontend_root": {
+    "canonical": false,
+    "purpose": "legacy/internal gamified HUD; do not use for business presentations"
+  },
+  "versioning_rule": "Do not infer the canonical demo from v1/v2/v3/v4 folder names. This file is authoritative until deliberately changed."
+}
