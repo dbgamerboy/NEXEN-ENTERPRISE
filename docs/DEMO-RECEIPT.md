@@ -1,23 +1,21 @@
-# NEXEN demo receipt
+# NEXEN ENTERPRISE V1 demo receipt
 
-Generated 2026-10-07T12:48:42.349Z from docs/qa-results.json (QA run 2026-10-07T12:47:01.972Z) and git status. Last commit before this work: b56d03c NEXEN_FINAL_DEMO_Q4.
+Generated 2026-10-07T12:52:56.073Z from docs/qa-results.json (QA run 2026-10-07T12:52:55.686Z) and git status. Last commit before this work: 6fcb79c NEXEN_FINAL_DEMO_Q4: corporate meeting and exhaustive button test.
 
 ## FILES CREATED
-- docs/button-test-results.json
-- tests/demo_buttons.js
-- docs/img/ (3 screenshots)
+- none
 
 ## FILES MODIFIED
+- .claude/skills/nexen-frontend-demo/SKILL.md
 - README.md
 - docs/DEMO-GUIDE.md
-- docs/DEMO-RECEIPT.md
 - docs/qa-results.json
 - frontend/v2/app.js
-- frontend/v2/data.js
+- frontend/v2/index.html
 - frontend/v2/styles.css
-- tests/demo_qa.js
+- tests/test_backend.py
 - tools/demo_receipt.js
-- docs/img/ (19 screenshots)
+- docs/img/ (24 screenshots)
 
 ## ROUTES TESTED
 - /v2/#/ (landing)

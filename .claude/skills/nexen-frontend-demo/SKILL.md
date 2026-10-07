@@ -1,6 +1,6 @@
 ---
 name: nexen-frontend-demo
-description: Master scope for the NEXEN frontend demo: Construction, Corporate, Real Estate, mock files, MARVIN voice, tutorial, Future Development teasers. Use before touching frontend/v2.
+description: Master scope for NEXEN ENTERPRISE V1, the frontend demo: Construction, Corporate, Real Estate, mock files, MARVIN voice, tutorial, Future Development teasers. Use before touching frontend/v2.
 ---
 
 Scope (frontend only): one shell in `frontend/v2/` (index.html, styles.css, data.js, app.js). Three mock workspaces, files with previews, MARVIN drawer with simulated voice, 5-step tutorial, FUTURE DEVELOPMENT concept cards.

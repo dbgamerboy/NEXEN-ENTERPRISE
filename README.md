@@ -1,6 +1,8 @@
-# NEXEN Demo Build
+# NEXEN ENTERPRISE V1
 
-## Workspace demo (v2): Construction, Corporate, Real Estate
+A premium frontend demo of NEXEN for Construction, Corporate and Real Estate, with MARVIN as the AI interface. Demo data only.
+
+## Workspace demo: Construction, Corporate, Real Estate
 
 Open `http://127.0.0.1:8794/v2/` after `python backend/server.py`. One shell, three mock workspaces, file previews, MARVIN with simulated voice, a 5-step tutorial and FUTURE DEVELOPMENT concept cards. Guide: [docs/DEMO-GUIDE.md](docs/DEMO-GUIDE.md). Evidence: [docs/DEMO-RECEIPT.md](docs/DEMO-RECEIPT.md).
 
@@ -12,7 +14,7 @@ node tests/demo_buttons.js   # clicks every button and checkbox (514 on the last
 node tools/demo_receipt.js   # writes docs/DEMO-RECEIPT.md
 ```
 
-The first demo below (gamified HUD) is still served at `/`.
+The first demo below (the gamified triple-screen HUD, "NEXEN Demo Build") is still served at `/`.
 
 ---
 

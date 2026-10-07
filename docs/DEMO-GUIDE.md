@@ -1,4 +1,4 @@
-# NEXEN workspace demo: guide
+# NEXEN ENTERPRISE V1: guide
 
 Open `http://127.0.0.1:8794/v2/` after `python backend/server.py` (or open `frontend/v2/index.html` directly). All data is demo data and every MARVIN answer is simulated.
 

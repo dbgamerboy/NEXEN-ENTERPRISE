@@ -15,7 +15,7 @@ const pass = qa.results.filter((r) => r.pass), fail = qa.results.filter((r) => !
 const areas = {}; qa.results.forEach((r) => { (areas[r.area] = areas[r.area] || []).push(r); });
 const routes = ["/v2/#/ (landing)", "/v2/#/construction", "/v2/#/corporate", "/v2/#/real-estate", "/v2/#/<industry>/{workspace,files,tasks,automation,workers,activity,analytics,home}"];
 
-let md = `# NEXEN demo receipt\n\nGenerated ${new Date().toISOString()} from docs/qa-results.json (QA run ${qa.when}) and git status. Last commit before this work: ${lastCommit || "none"}.\n\n`;
+let md = `# NEXEN ENTERPRISE V1 demo receipt\n\nGenerated ${new Date().toISOString()} from docs/qa-results.json (QA run ${qa.when}) and git status. Last commit before this work: ${lastCommit || "none"}.\n\n`;
 md += `## FILES CREATED\n${group(created).map((f) => "- " + f).join("\n") || "- none"}\n\n## FILES MODIFIED\n${group(modified).map((f) => "- " + f).join("\n") || "- none"}\n\n`;
 md += `## ROUTES TESTED\n${routes.map((r) => "- " + r).join("\n")}\n\n`;
 md += `## INTERACTIONS TESTED (${qa.results.length} checks)\n${Object.entries(areas).map(([a, rs]) => `### ${a} (${rs.filter((r) => r.pass).length}/${rs.length})\n${rs.map((r) => `- ${r.pass ? "PASS" : "FAIL"}: ${r.name}`).join("\n")}`).join("\n\n")}\n\n`;

@@ -44,7 +44,7 @@
   function showLanding() {
     closeDrawer(); endTour(false); closeModal();
     $("#landing").classList.remove("hide"); $("#app").classList.add("hide"); $("#marvin-fab").classList.add("hide");
-    document.title = "NEXEN Workspace Demo"; S.ind = null;
+    document.title = "NEXEN Enterprise V1"; S.ind = null;
   }
   $("#land-tour").addEventListener("click", () => { store("nexen_demo_tour_done", ""); go("#/construction"); });
   $("#home-logo").addEventListener("click", () => go("#/"));
@@ -56,7 +56,7 @@
     const d = cur();
     $("#landing").classList.add("hide"); $("#app").classList.remove("hide"); $("#marvin-fab").classList.remove("hide");
     document.documentElement.style.setProperty("--tint", d.tint);
-    document.title = "NEXEN · " + d.workspace;
+    document.title = "NEXEN Enterprise V1 · " + d.workspace;
     $("#ws-name").textContent = d.workspace; $("#ws-sub").textContent = d.name + " workspace · Demo Data";
     $("#av").textContent = d.user.initials; $("#u-name").textContent = d.user.name; $("#u-role").textContent = d.user.role;
     const segHtml = D.order.map((id) => `<button type="button" data-ind="${id}" class="${id === ind ? "on" : ""}">${D.industries[id].icon} ${esc(D.industries[id].name)}</button>`).join("");
