@@ -78,6 +78,7 @@
   $("#bell").addEventListener("click", () => {
     const d = cur();
     openModal(`<div class="m-h"><div style="flex:1"><b>Notifications</b><small>${esc(d.workspace)} · Demo Data</small></div><button class="btn sm" data-close type="button">Close</button></div><div style="padding:18px 22px">${d.priority.map((p, i) => `<button class="pri" type="button" data-file="${p[3]}"><span class="sev ${p[0]}">${p[0]}</span><span style="flex:1"><span class="t">${esc(p[1])}</span><br><span class="m">${esc(p[2])}</span></span></button>`).join("")}</div>`);
+    $$("#mbox [data-file]").forEach((b, k) => b.addEventListener("click", () => { const p = d.priority[k]; if (p && p[4]) openMeeting("brief"); else openFile(+b.dataset.file); }));
   });
   function settingsModal() {
     openModal(`<div class="m-h"><div style="flex:1"><b>Settings</b><small>Demo controls</small></div><button class="btn sm" data-close type="button">Close</button></div>
@@ -93,7 +94,7 @@
   /* ---------- pages ---------- */
   function secKpis(d) { return `<div class="kpis">${d.kpis.map((k) => `<div class="kpi"><b>${esc(k[0])}</b><span>${esc(k[1])}</span><small>${esc(k[2])} · demo</small></div>`).join("")}</div>`; }
   function secPriority(d, title) {
-    return `<section class="sec" id="sec-priority"><div class="sec-h"><h2>${title || "Priority items"}</h2><small>${d.priority.length} need a look</small></div>${d.priority.map((p, i) => `<button class="pri" type="button" id="pri-${i}" data-file="${p[3]}"><span class="sev ${p[0]}">${p[0]}</span><span style="flex:1;min-width:0"><span class="t">${esc(p[1])}</span><br><span class="m">${esc(p[2])}</span></span><span class="link">Open ›</span></button>`).join("")}</section>`;
+    return `<section class="sec" id="sec-priority"><div class="sec-h"><h2>${title || "Priority items"}</h2><small>${d.priority.length} need a look</small></div>${d.priority.map((p, i) => `<button class="pri" type="button" id="pri-${i}" data-file="${p[3]}" ${p[4] ? 'data-meeting="1"' : ""}><span class="sev ${p[0]}">${p[0]}</span><span style="flex:1;min-width:0"><span class="t">${esc(p[1])}</span><br><span class="m">${esc(p[2])}</span></span><span class="link">Open ›</span></button>`).join("")}</section>`;
   }
   function secRec(d) {
     return `<section class="rec" id="sec-rec"><div class="head"><span class="orb"></span><div><div class="who">MARVIN RECOMMENDS</div><small style="color:var(--muted)">Simulated response</small></div></div><h3>${esc(d.recommend.title)}</h3><p>${esc(d.recommend.text)}</p><ul class="then">${d.tasks.slice(1, 3).map((t) => `<li><b>THEN</b>${esc(t[0])}</li>`).join("")}</ul><div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" type="button" data-file="${d.recommend.file}" id="rec-open">Open ${esc(d.files[d.recommend.file].name.replace(/_/g, " ").replace(/\.\w+$/, ""))}</button><button class="btn sm" type="button" id="rec-ask">Ask MARVIN</button></div></section>`;
@@ -129,12 +130,16 @@
   function secFuture() {
     return `<section class="future" id="sec-future"><h2>FUTURE DEVELOPMENT</h2><p class="sub">Concept previews of where NEXEN could go. None of this works today.</p><div class="fgrid">${D.future.map((f, i) => `<button class="fcard" type="button" id="future-${i}" data-future="${i}">${art(f.v)}<span class="cap"><span class="fbadge">${esc(f.badge)}</span><b>${esc(f.t)}</b><p>${esc(f.d)}</p></span></button>`).join("")}</div><p class="disc">Concept visualization. Not representative of currently shipped functionality.</p></section>`;
   }
+  function secMeeting(d) {
+    const m = d.meeting; if (!m) return "";
+    return `<section class="sec" id="sec-meeting"><div class="sec-h"><h2>Next meeting</h2><small>${esc(m.when)} · Demo Data</small></div><div class="mt-row"><div><b style="font-size:17px">${esc(m.title)}</b><div class="note" style="color:var(--soft)">${esc(m.starts)} · ${esc(m.room)}</div><div class="avs">${m.attendees.map((a) => `<span class="av sm" title="${esc(a[0])}, ${esc(a[1])}">${esc(a[0].split(" ").map((w) => w[0]).join(""))}</span>`).join("")}</div></div><div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="meet-brief" type="button">Open briefing</button><button class="btn primary" id="meet-now" type="button">▶ Start meeting now</button></div></div></section>`;
+  }
   function greet(d) {
     return `<div class="greet"><div><h1>Good morning, ${esc(d.user.name.split(" ")[0])}</h1><p>${esc(d.summaryLine)}</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="g-tour" type="button">Restart tutorial</button><button class="btn primary" id="g-marvin" type="button">🎙️ Ask MARVIN</button></div></div>`;
   }
   function renderPage() {
     const d = cur(), v = S.view; let h = "";
-    if (v === "home") h = greet(d) + `<div id="dash" style="display:flex;flex-direction:column;gap:22px">${secKpis(d)}<div class="grid2">${secPriority(d)}${secRec(d)}</div></div><div class="grid2">${secFiles(d, false)}${secActivity(d, 5)}</div>${secWorkers(d, true)}${secFuture()}`;
+    if (v === "home") h = greet(d) + `<div id="dash" style="display:flex;flex-direction:column;gap:22px">${secKpis(d)}<div class="grid2">${secPriority(d)}${secRec(d)}</div></div>${secMeeting(d)}<div class="grid2">${secFiles(d, false)}${secActivity(d, 5)}</div>${secWorkers(d, true)}${secFuture()}`;
     else if (v === "workspace") h = greet(d) + `<div id="dash" style="display:flex;flex-direction:column;gap:22px">${secKpis(d)}<section class="sec"><div class="sec-h"><h2>Workspace overview</h2></div><div class="ws-info"><div><small>Workspace</small><b>${esc(d.workspace)}</b></div><div><small>Owner</small><b>${esc(d.user.name)} · ${esc(d.user.role)}</b></div><div><small>Files · workers</small><b>${d.files.length} files · ${d.workers.length} workers</b></div></div></section><div class="grid2">${secPriority(d)}${secRec(d)}</div></div>`;
     else if (v === "files") h = `<div class="greet"><div><h1>Files</h1><p>${esc(d.workspace)} · demo data</p></div></div>${secFiles(d, true)}`;
     else if (v === "tasks") h = `<div class="greet"><div><h1>Tasks</h1><p>Your open tasks for ${esc(d.short)}.</p></div></div><section class="sec" id="sec-tasks">${d.tasks.map((t, i) => { const dn = (S.done[S.ind] || {})[i]; return `<label class="task ${dn ? "done" : ""}"><input type="checkbox" data-task="${i}" ${dn ? "checked" : ""}><span class="t">${esc(t[0])}</span><small>${esc(t[1])}</small><button class="link" type="button" data-file="${t[2]}">Open file ›</button></label>`; }).join("")}</section>` + secPriority(d, "Priority items");
@@ -150,7 +155,9 @@
   }
   function wirePage() {
     const p = $("#page");
-    $$("[data-file]", p).forEach((b) => b.addEventListener("click", (e) => { e.preventDefault(); openFile(+b.dataset.file); }));
+    $$("[data-file]", p).forEach((b) => b.addEventListener("click", (e) => { e.preventDefault(); if (b.dataset.meeting) openMeeting("brief"); else openFile(+b.dataset.file); }));
+    const mb = $("#meet-brief"); if (mb) mb.addEventListener("click", () => openMeeting("brief"));
+    const mn = $("#meet-now"); if (mn) mn.addEventListener("click", () => openMeeting("live"));
     $$("[data-view]", p).forEach((b) => b.addEventListener("click", () => go("#/" + S.ind + "/" + b.dataset.view)));
     $$("[data-cat]", p).forEach((b) => b.addEventListener("click", () => { S.cat = b.dataset.cat; renderPage(); }));
     $$("[data-future]", p).forEach((b) => b.addEventListener("click", () => openFuture(+b.dataset.future)));
@@ -162,7 +169,7 @@
 
   /* ---------- modal + file preview ---------- */
   function openModal(html) { $("#mbox").innerHTML = html; $("#modal").classList.add("on"); const c = $("[data-close]", $("#mbox")); if (c) c.focus(); }
-  function closeModal() { $("#modal").classList.remove("on"); $("#mbox").innerHTML = ""; }
+  function closeModal() { clearInterval(S.meetT); $("#modal").classList.remove("on"); $("#mbox").innerHTML = ""; }
   $("#modal").addEventListener("click", (e) => { if (e.target.id === "modal" || e.target.hasAttribute("data-close")) closeModal(); });
   function previewText(f) {
     const p = f.prev, out = [p.head + " · " + p.sub, "DEMO PREVIEW. This file is mock data."];
@@ -190,6 +197,42 @@
     $$("[data-rel]", $("#mbox")).forEach((b) => b.addEventListener("click", () => openFile(+b.dataset.rel)));
     $("#pv-ask").addEventListener("click", () => { closeModal(); openDrawer(); setTimeout(() => ask("Summarize " + f.name.replace(/\.\w+$/, "").replace(/_/g, " ") + "."), 250); });
     $("#pv-dl").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([previewText(f)], { type: "text/plain" })); a.download = f.name + ".demo-preview.txt"; document.body.appendChild(a); a.click(); a.remove(); toast("Downloaded a text preview of the mock file"); });
+  }
+  function openMeeting(mode) {
+    const d = cur(), m = d.meeting; if (!m) return; clearInterval(S.meetT);
+    if (mode === "live") return meetLive();
+    openModal(`<div class="m-h"><span class="ftype pptx" style="font-size:18px">📅</span><div style="flex:1;min-width:0"><b>${esc(m.title)}</b><small>${esc(m.when)} · ${esc(m.starts)} · ${esc(m.room)} · Demo Data</small></div><button class="btn sm" data-close type="button" id="mt-close">Close</button></div>
+      <div class="m-body"><div><div class="blk"><h4>Agenda</h4><ul class="tl">${m.agenda.map((a) => `<li><i></i><span><b>${esc(a[1])}</b><br><small style="color:var(--muted)">${esc(a[0])} · ${esc(a[2])}</small></span></li>`).join("")}</ul></div>
+        <div class="blk msum"><div class="who"><span class="orb"></span>MARVIN TALKING POINTS</div><ul style="margin:6px 0 0;padding-left:18px">${m.talking.map((t) => `<li style="margin:4px 0">${esc(t)}</li>`).join("")}</ul><p class="note" style="color:var(--muted);margin-top:6px">Simulated brief.</p></div></div>
+      <div class="m-side"><div class="blk"><h4>Attendees</h4>${m.attendees.map((a) => `<div class="note" style="color:var(--soft)">${esc(a[0])} · ${esc(a[1])}</div>`).join("")}</div>
+        <div class="blk"><h4>Pre-read</h4>${m.preread.map((r) => `<button class="rel" type="button" data-rel="${r}"><span class="ftype ${ext(d.files[r].name)}" style="width:28px;height:32px;font-size:8px">${ext(d.files[r].name).toUpperCase()}</span>${esc(d.files[r].name)}</button>`).join("")}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm primary" type="button" id="meet-play">🔊 Play briefing</button><button class="btn sm primary" type="button" id="meet-start">▶ Start meeting now</button><button class="btn sm" type="button" id="meet-prepared">Mark prepared</button></div></div></div>`);
+    $$("[data-rel]", $("#mbox")).forEach((b) => b.addEventListener("click", () => openFile(+b.dataset.rel)));
+    $("#meet-play").addEventListener("click", () => { Voice.speak(m.spoken); toast("Playing the simulated briefing"); });
+    $("#meet-start").addEventListener("click", () => meetLive());
+    $("#meet-prepared").addEventListener("click", (e) => { (S.done[S.ind] = S.done[S.ind] || {})[2] = true; e.target.textContent = "Prepared ✓"; renderNav(); toast("Marked prepared. The task was checked off."); });
+  }
+  function meetLive() {
+    const d = cur(), m = d.meeting; let i = 0; const cap = [];
+    openModal(`<div class="m-h"><span class="livedot"></span><div style="flex:1;min-width:0"><b>LIVE · ${esc(m.title)}</b><small id="mt-state">Simulated meeting. MARVIN is listening and taking notes. Demo Data</small></div><button class="btn sm primary" type="button" id="meet-end">■ End meeting</button></div>
+      <div class="m-body"><div class="blk"><h4>Live transcript</h4><div id="mt-tr" class="trbox"></div></div><div class="m-side"><div class="blk msum"><div class="who"><span class="orb"></span>MARVIN CAPTURED</div><div id="mt-cap" class="note" style="color:var(--soft)">Decisions and actions appear here.</div></div></div></div>`);
+    const tick = () => {
+      if (i >= m.live.length) { clearInterval(S.meetT); const s = $("#mt-state"); if (s) s.textContent = "Agenda covered. End the meeting to get notes."; return; }
+      const l = m.live[i], box = $("#mt-tr"); if (!box) { clearInterval(S.meetT); return; }
+      box.insertAdjacentHTML("beforeend", `<div class="trl"><b>${esc(l[0])}</b> ${esc(l[1])}</div>`); box.scrollTop = 1e6;
+      m.captured.filter((c) => c[0] === i).forEach((c) => { cap.push(c); $("#mt-cap").innerHTML = cap.map((k) => `<div class="capi"><span class="st ${k[1] === "DECISION" ? "Approved" : "Pending"}">${k[1]}</span> ${esc(k[2])}</div>`).join(""); });
+      i++;
+    };
+    tick(); S.meetT = setInterval(tick, 1300);
+    $("#meet-end").addEventListener("click", () => {
+      clearInterval(S.meetT);
+      $("#mbox").innerHTML = `<div class="m-h"><div style="flex:1"><b>Meeting notes</b><small>${esc(m.title)} · generated by MARVIN · Simulated</small></div><button class="btn sm" data-close type="button" id="mt-close">Close</button></div>
+        <div style="padding:20px 22px;display:flex;flex-direction:column;gap:14px"><div class="msum"><div class="who"><span class="orb"></span>MARVIN SUMMARY</div><p style="color:var(--text)">${esc(m.summary)}</p></div>
+        <div>${m.captured.map((k) => `<div class="capi"><span class="st ${k[1] === "DECISION" ? "Approved" : "Pending"}">${k[1]}</span> ${esc(k[2])}</div>`).join("")}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" type="button" id="meet-save">Save notes to workspace</button><button class="btn sm" type="button" id="meet-speak">🔊 Speak summary</button></div></div>`;
+      $("#meet-speak").addEventListener("click", () => Voice.speak(m.summary));
+      $("#meet-save").addEventListener("click", () => { d.activity.unshift(["MARVIN generated the leadership meeting notes (4 items)", "just now"]); d.files[2].status = "Updated"; d.files[2].mod = "Today"; (S.done[S.ind] = S.done[S.ind] || {})[2] = true; closeModal(); renderPage(); renderNav(); toast("Notes saved to Leadership_Meeting_Notes.docx (mock)"); });
+    });
   }
   function openFuture(i) {
     const f = D.future[i];
@@ -226,10 +269,11 @@
   function bubble(m, i) {
     if (m.who === "me") return `<div class="bub me"><span class="tag">YOU</span>${esc(m.text)}</div>`;
     const d = cur();
-    return `<div class="bub bot"><span class="tag">MARVIN · SIMULATED RESPONSE</span><span class="txt">${esc(m.text)}</span>${m.greeting ? "" : `<div class="acts"><button class="btn sm primary" type="button" data-speak="${i}">🔊 Speak Response</button>${(m.files || []).map((f) => `<button class="btn sm" type="button" data-bfile="${f}">${esc(d.files[f].name)}</button>`).join("")}</div>`}</div>`;
+    return `<div class="bub bot"><span class="tag">MARVIN · SIMULATED RESPONSE</span><span class="txt">${esc(m.text)}</span>${m.greeting ? "" : `<div class="acts"><button class="btn sm primary" type="button" data-speak="${i}">🔊 Speak Response</button>${m.meeting ? `<button class="btn sm" type="button" data-meet="1">📅 Open meeting briefing</button>` : ""}${(m.files || []).map((f) => `<button class="btn sm" type="button" data-bfile="${f}">${esc(d.files[f].name)}</button>`).join("")}</div>`}</div>`;
   }
   function wireConvo() {
     $$("[data-speak]", $("#convo")).forEach((b) => b.addEventListener("click", () => { const m = chat()[+b.dataset.speak]; if (S.speaking) { Voice.stop(); b.textContent = "🔊 Speak Response"; } else Voice.speak(m.text, () => { b.textContent = "🔊 Speak Response"; }); if (S.speaking) b.textContent = "⏹ Stop"; }));
+    $$("[data-meet]", $("#convo")).forEach((b) => b.addEventListener("click", () => { closeDrawer(); openMeeting("brief"); }));
     $$("[data-bfile]", $("#convo")).forEach((b) => b.addEventListener("click", () => { closeDrawer(); openFile(+b.dataset.bfile); }));
   }
   function match(text) {
@@ -244,7 +288,7 @@
     chat().push({ who: "me", text }); renderConvo(); setStatus("Thinking…");
     setTimeout(() => {
       const k = match(text), d = cur(), r = k ? d.marvin[k] : null;
-      chat().push({ who: "bot", text: r ? r[0] : D.fallbackMarvin, files: r ? r[1] : [] });
+      chat().push({ who: "bot", text: r ? r[0] : D.fallbackMarvin, files: r ? r[1] : [], meeting: !!(k === "meeting" && d.meeting) });
       renderConvo(); setStatus("Ready");
       if (opts.autoSpeak && r) Voice.speak(r[0]);
     }, 700);

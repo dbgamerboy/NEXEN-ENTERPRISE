@@ -32,6 +32,19 @@ Open `http://127.0.0.1:8794/v2/` after `python backend/server.py` (or open `fron
 | Ask MARVIN | Opens the assistant. Suggested questions, text input, simulated microphone, Speak Response |
 | Settings or the avatar | Restart the tutorial or return to the landing |
 
+## Corporate meeting (simulated)
+
+In Corporate, the MEDIUM priority item, the **Next meeting** card and MARVIN's "Prepare me for the leadership meeting" answer all open the leadership meeting.
+
+| Button | What it does |
+|---|---|
+| Open briefing | Agenda, attendees, pre-read files and MARVIN talking points |
+| 🔊 Play briefing | MARVIN speaks the briefing with browser speech |
+| Mark prepared | Checks off the briefing task |
+| ▶ Start meeting now | Live simulated meeting: transcript lines arrive every 1.3 seconds and MARVIN captures decisions and actions |
+| ■ End meeting | Meeting notes with a summary |
+| Save notes to workspace | Adds an activity entry and marks Leadership_Meeting_Notes.docx as Updated (mock) |
+
 ## Tutorial
 
 Five steps with Back, Next, Skip Tutorial and Try MARVIN. It opens on first visit and can be restarted from Restart tutorial, Settings, or the landing link.

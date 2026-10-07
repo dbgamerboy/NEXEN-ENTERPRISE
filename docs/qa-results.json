@@ -1,5 +1,5 @@
 {
-  "when": "2026-10-07T12:13:17.865Z",
+  "when": "2026-10-07T12:47:01.972Z",
   "results": [
     {
       "area": "Landing",
@@ -314,6 +314,48 @@
       "detail": ""
     },
     {
+      "area": "Meeting",
+      "name": "briefing shows agenda, attendees, pre-read and MARVIN talking points",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Meeting",
+      "name": "Play briefing triggers voice playback",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Meeting",
+      "name": "live meeting streams transcript lines",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Meeting",
+      "name": "MARVIN captures decisions and actions live",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Meeting",
+      "name": "end meeting shows summary and 4 captured items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Meeting",
+      "name": "saving notes updates the activity feed and the file status",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "area": "Meeting",
+      "name": "the MEDIUM briefing priority item opens the meeting",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "area": "Switching",
       "name": "Corporate to Real Estate swaps workspace instantly",
       "pass": true,
@@ -401,7 +443,7 @@
       "area": "real-estate",
       "name": "Speak Response triggers voice playback",
       "pass": true,
-      "detail": "speakCount 3 to 4"
+      "detail": "speakCount 4 to 5"
     },
     {
       "area": "real-estate",
@@ -606,6 +648,9 @@
     "docs/img/v2/03-corporate-home-1080p.png",
     "docs/img/v2/04-corporate-file-preview.png",
     "docs/img/v2/05-marvin-response-corporate.png",
+    "docs/img/v2/16-corporate-meeting-briefing.png",
+    "docs/img/v2/17-corporate-meeting-live.png",
+    "docs/img/v2/18-corporate-meeting-notes.png",
     "docs/img/v2/03-real-estate-home-1080p.png",
     "docs/img/v2/04-real-estate-file-preview.png",
     "docs/img/v2/05-marvin-response-real-estate.png",

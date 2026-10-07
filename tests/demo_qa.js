@@ -131,6 +131,23 @@ async function desktop(browser, base) {
   await page.click("#seg button[data-ind=corporate]"); await page.waitForFunction(() => document.querySelector("#ws-name").textContent === "Northstar Operations");
   rec("Switching", "Construction to Corporate swaps workspace instantly", true);
   await inspectIndustry("corporate", "Northstar Operations", 3, ["Vendor Agreement", "Brightloop Cloud", "Notice deadline", "MARVIN SUMMARY"], "Three items need executive attention", "$4.8M");
+  // corporate meeting: briefing, live meeting, notes
+  await page.click("#meet-brief"); await page.waitForSelector("#modal.on");
+  const brief = (await txt(page, "#mbox")).toLowerCase();
+  rec("Meeting", "briefing shows agenda, attendees, pre-read and MARVIN talking points", ["agenda", "attendees", "pre-read", "marvin talking points", "q3 results"].every((t) => brief.includes(t)));
+  await shot(page, "16-corporate-meeting-briefing");
+  const m0 = await page.evaluate(() => window.__speakCount); await page.click("#meet-play");
+  rec("Meeting", "Play briefing triggers voice playback", (await page.evaluate(() => window.__speakCount)) === m0 + 1);
+  await page.evaluate(() => speechSynthesis && speechSynthesis.cancel());
+  await page.click("#meet-start"); await page.waitForFunction(() => document.querySelectorAll("#mt-tr .trl").length >= 4, null, { timeout: 8000 }).then(() => rec("Meeting", "live meeting streams transcript lines", true), () => rec("Meeting", "live meeting streams transcript lines", false));
+  rec("Meeting", "MARVIN captures decisions and actions live", (await page.locator("#mt-cap .capi").count()) >= 2);
+  await shot(page, "17-corporate-meeting-live");
+  await page.click("#meet-end"); await page.waitForSelector("#meet-save");
+  rec("Meeting", "end meeting shows summary and 4 captured items", (await txt(page, "#mbox")).includes("MARVIN SUMMARY") && await page.locator("#mbox .capi").count() === 4);
+  await shot(page, "18-corporate-meeting-notes");
+  await page.click("#meet-save"); await page.waitForSelector("#modal.on", { state: "detached", timeout: 2000 }).catch(() => {});
+  rec("Meeting", "saving notes updates the activity feed and the file status", (await txt(page, "#sec-activity")).includes("leadership meeting notes") && (await txt(page, "#file-2")).includes("Updated"));
+  await page.click("#pri-2"); await page.waitForSelector("#meet-start"); rec("Meeting", "the MEDIUM briefing priority item opens the meeting", true); await page.keyboard.press("Escape");
   await page.click("#seg button[data-ind=real-estate]"); await page.waitForFunction(() => document.querySelector("#ws-name").textContent === "Evergreen Realty Group");
   rec("Switching", "Corporate to Real Estate swaps workspace instantly", true);
   await inspectIndustry("real-estate", "Evergreen Realty Group", 3, ["Buyer Offer", "Johnson Family", "$402,000", "MARVIN SUMMARY"], "Three deals need attention", "18");

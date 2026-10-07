@@ -7,7 +7,8 @@ Open `http://127.0.0.1:8794/v2/` after `python backend/server.py`. One shell, th
 ![Construction](docs/img/v2/03-construction-home-1080p.png)
 
 ```bash
-node tests/demo_qa.js        # 99 browser checks, writes docs/qa-results.json and screenshots
+node tests/demo_qa.js        # 106 browser checks, writes docs/qa-results.json and screenshots
+node tests/demo_buttons.js   # clicks every button and checkbox (514 on the last run, all passed), one per fresh load, about 10 minutes
 node tools/demo_receipt.js   # writes docs/DEMO-RECEIPT.md
 ```
 

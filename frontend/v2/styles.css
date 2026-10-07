@@ -281,3 +281,11 @@ h1,h2,h3,p{margin:0}
 .then{margin:6px 0 0;padding:12px 0 0;border-top:1px solid rgba(255,59,67,.25);color:var(--soft);font-size:14px;list-style:none;display:flex;flex-direction:column;gap:6px}
 .then b{color:var(--brand2);font-size:11px;letter-spacing:.14em;margin-right:6px}
 @media (max-width:640px){.wgrid{grid-template-columns:1fr 1fr;gap:10px}.worker{padding:12px}.worker p{font-size:12px}}
+
+.mt-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.avs{display:flex;margin-top:8px}.av.sm{width:30px;height:30px;font-size:11px;margin-right:-6px;border:2px solid var(--card)}
+.livedot{width:12px;height:12px;border-radius:50%;background:var(--brand);animation:blink 1s infinite;flex:none}
+.trbox{max-height:44vh;min-height:200px;overflow-y:auto;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px}
+.trl{padding:7px 0;border-top:1px solid var(--line);animation:fadein .4s}.trl:first-child{border-top:0}.trl b{color:var(--brand2);margin-right:6px}
+.capi{padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:var(--text)}.capi:first-child{border-top:0}.capi .st{margin-right:8px;font-size:11px;padding:2px 8px}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1}}

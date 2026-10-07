@@ -1,32 +1,23 @@
 # NEXEN demo receipt
 
-Generated 2026-10-07T12:13:18.274Z from docs/qa-results.json (QA run 2026-10-07T12:13:17.865Z) and git status. Last commit before this work: b1f34e2 NEXEN Demo Build: triple-screen HUD with clickable sample data.
+Generated 2026-10-07T12:48:42.349Z from docs/qa-results.json (QA run 2026-10-07T12:47:01.972Z) and git status. Last commit before this work: b56d03c NEXEN_FINAL_DEMO_Q4.
 
 ## FILES CREATED
-- .claude/skills/demo-receipt/SKILL.md
-- .claude/skills/future-development-teasers/SKILL.md
-- .claude/skills/guided-product-tour/SKILL.md
-- .claude/skills/marvin-demo-voice/SKILL.md
-- .claude/skills/mock-file-preview/SKILL.md
-- .claude/skills/mock-industry-factory/SKILL.md
-- .claude/skills/nexen-frontend-demo/SKILL.md
-- .claude/skills/playwright-demo-qa/SKILL.md
-- .claude/skills/responsive-visual-check/SKILL.md
-- .claude/skills/ui-polish-audit/SKILL.md
-- docs/DEMO-GUIDE.md
-- docs/qa-results.json
-- frontend/v2/app.js
-- frontend/v2/data.js
-- frontend/v2/index.html
-- frontend/v2/styles.css
-- tests/demo_qa.js
-- tools/demo_receipt.js
-- docs/img/ (21 screenshots)
+- docs/button-test-results.json
+- tests/demo_buttons.js
+- docs/img/ (3 screenshots)
 
 ## FILES MODIFIED
 - README.md
-- backend/server.py
-- tests/test_backend.py
+- docs/DEMO-GUIDE.md
+- docs/DEMO-RECEIPT.md
+- docs/qa-results.json
+- frontend/v2/app.js
+- frontend/v2/data.js
+- frontend/v2/styles.css
+- tests/demo_qa.js
+- tools/demo_receipt.js
+- docs/img/ (19 screenshots)
 
 ## ROUTES TESTED
 - /v2/#/ (landing)
@@ -35,7 +26,7 @@ Generated 2026-10-07T12:13:18.274Z from docs/qa-results.json (QA run 2026-10-07T
 - /v2/#/real-estate
 - /v2/#/<industry>/{workspace,files,tasks,automation,workers,activity,analytics,home}
 
-## INTERACTIONS TESTED (99 checks)
+## INTERACTIONS TESTED (106 checks)
 ### Landing (3/3)
 - PASS: headline and 3 industry cards render
 - PASS: each card has an ENTER WORKSPACE button and preview
@@ -101,6 +92,15 @@ Generated 2026-10-07T12:13:18.274Z from docs/qa-results.json (QA run 2026-10-07T
 - PASS: suggested prompt returns a relevant answer
 - PASS: Speak Response triggers voice playback
 - PASS: MARVIN closes
+
+### Meeting (7/7)
+- PASS: briefing shows agenda, attendees, pre-read and MARVIN talking points
+- PASS: Play briefing triggers voice playback
+- PASS: live meeting streams transcript lines
+- PASS: MARVIN captures decisions and actions live
+- PASS: end meeting shows summary and 4 captured items
+- PASS: saving notes updates the activity feed and the file status
+- PASS: the MEDIUM briefing priority item opens the meeting
 
 ### real-estate (15/15)
 - PASS: workspace name is Evergreen Realty Group
@@ -175,6 +175,9 @@ Generated 2026-10-07T12:13:18.274Z from docs/qa-results.json (QA run 2026-10-07T
 - docs/img/v2/03-corporate-home-1080p.png
 - docs/img/v2/04-corporate-file-preview.png
 - docs/img/v2/05-marvin-response-corporate.png
+- docs/img/v2/16-corporate-meeting-briefing.png
+- docs/img/v2/17-corporate-meeting-live.png
+- docs/img/v2/18-corporate-meeting-notes.png
 - docs/img/v2/03-real-estate-home-1080p.png
 - docs/img/v2/04-real-estate-file-preview.png
 - docs/img/v2/05-marvin-response-real-estate.png
@@ -188,8 +191,12 @@ Generated 2026-10-07T12:13:18.274Z from docs/qa-results.json (QA run 2026-10-07T
 - docs/img/v2/14-narrow-preview.png
 - docs/img/v2/15-laptop-realestate.png
 
+## EXHAUSTIVE BUTTON TEST
+514 buttons and checkboxes clicked, one per fresh page load (run 2026-10-07T12:43:18.375Z). 514 passed, 0 failed. 12 read-only views (automation, workers, activity, analytics, per industry) have no controls to click.
+A click passes when it changes the page, route or toast, starts a download, or triggers voice playback. Page errors during the sweep: 0.
+
 ## PASS
-99 of 99 checks passed.
+106 of 106 checks passed.
 
 ## FAIL
 None in this run.
