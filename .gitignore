@@ -8,3 +8,5 @@ node_modules/
 dbg_*
 vectors.jsonl
 !data/sample/vectors.sample.jsonl
+docs/video/*.webm
+docs/video/_narration/

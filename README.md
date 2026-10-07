@@ -8,6 +8,8 @@ Open `http://127.0.0.1:8794/v2/` after `python backend/server.py`. One shell, th
 
 ![Construction](docs/img/v2/03-construction-home-1080p.png)
 
+**Tutorial video (107 seconds, 1080p, narrated with the Windows voice):** [docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4](docs/video/NEXEN-ENTERPRISE-V1-tutorial.mp4). Re-record with `node tools/record_tutorial_video.js` (needs ffmpeg in the FFMPEG env var).
+
 ```bash
 node tests/demo_qa.js        # 106 browser checks, writes docs/qa-results.json and screenshots
 node tests/demo_buttons.js   # clicks every button and checkbox (514 on the last run, all passed), one per fresh load, about 10 minutes

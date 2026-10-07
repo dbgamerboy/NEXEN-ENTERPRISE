@@ -1,7 +1,7 @@
 name: pages
+# Manual only. GitHub Pages needs a public repo on the free plan.
+# To publish: make the repo public, enable Settings > Pages > Source: GitHub Actions, then run this workflow.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
