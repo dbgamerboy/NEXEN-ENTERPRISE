@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+node_modules/
+.env
+*.env
+*.key
+*.pem
+dbg_*
+vectors.jsonl
+!data/sample/vectors.sample.jsonl

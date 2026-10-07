@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="NEXEN Demo Build: triple-screen command HUD with clickable sample data.">
+<title>NEXEN Demo Build</title>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#070506;--panel:rgba(26,10,12,.78);--panel2:rgba(40,12,15,.62);
+  --line:rgba(255,58,64,.28);--line-hi:rgba(255,72,80,.75);--red:#ff3b43;--red-hi:#ff6b71;--red-deep:#8e0f16;
+  --text:#f6eeee;--soft:#c9b7b8;--muted:#9a8486;--ok:#39d98a;--warn:#ffb13b;--bad:#ff4d57;
+  --blue:#3b8bff;--teal:#19c6c0;--purple:#9b5cff;--pink:#ff4fa3;--r:12px;--hdr:56px;--tabbar:0px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",Inter,system-ui,sans-serif;-webkit-text-size-adjust:100%}
+body{background:radial-gradient(1200px 600px at 50% -10%,rgba(255,40,50,.18),transparent 60%),radial-gradient(900px 500px at 50% 110%,rgba(255,40,50,.10),transparent 60%),var(--bg);overflow:hidden;counter-reset:hl}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:2px solid var(--red-hi);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+header.top{height:var(--hdr);display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line);background:rgba(10,4,5,.85);backdrop-filter:blur(8px);position:relative;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.14em;font-size:15px;white-space:nowrap}
+.brand img{width:34px;height:34px}
+.brand b{color:var(--red)}
+.pill{font:700 10px/1 ui-monospace,Consolas,monospace;letter-spacing:.08em;padding:5px 8px;border:1px solid var(--line-hi);border-radius:999px;color:var(--red-hi);white-space:nowrap}
+.pill.live{color:var(--ok);border-color:rgba(57,217,138,.6)}
+.spacer{flex:1}
+.hbtn{min-height:38px;padding:0 14px;border-radius:9px;border:1px solid var(--line-hi);background:rgba(255,59,67,.12);font-weight:700;font-size:13px}
+.hbtn:hover{background:rgba(255,59,67,.28)}
+.clock{font:600 12px ui-monospace,Consolas,monospace;color:var(--soft)}
+
+#track{height:calc(100dvh - var(--hdr) - var(--tabbar));display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.22fr) minmax(0,1fr);gap:14px;padding:14px 16px}
+.screen{min-width:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:14px;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--red-deep) transparent}
+.screen-title{display:none}
+.panel{position:relative;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:0 0 0 1px rgba(255,60,70,.05) inset,0 12px 40px rgba(0,0,0,.45),0 0 24px rgba(255,40,50,.08);flex:none}
+.panel h2{margin:0 0 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-hi);font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel h2 small{color:var(--muted);letter-spacing:.03em;text-transform:none;font-weight:500;font-size:11px}
+.note{color:var(--muted);font-size:12px}
+
+.btn{min-height:40px;padding:0 14px;border-radius:9px;border:1px solid var(--line-hi);background:rgba(255,59,67,.14);font-weight:650;font-size:13px}
+.btn:hover{background:rgba(255,59,67,.3)}
+.btn.sm{min-height:34px;padding:0 10px;font-size:12px}
+.btn.ok{border-color:rgba(57,217,138,.6);background:rgba(57,217,138,.12)}
+.btn.ok:hover{background:rgba(57,217,138,.28)}
+.btn.no{border-color:rgba(255,77,87,.6);background:rgba(255,77,87,.1)}
+.btn.solid{background:var(--red);color:#210407;border-color:var(--red-hi);font-weight:800}
+.btn.solid:hover{background:var(--red-hi)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip,.tab,.quick{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12.5px;color:var(--soft)}
+.chip:hover,.tab:hover,.quick:hover{border-color:var(--line-hi);color:var(--text)}
+.chip.on,.tab.on{background:rgba(255,59,67,.22);border-color:var(--red-hi);color:var(--text);font-weight:700}
+input[type=text],input[type=number],select,textarea{min-height:40px;border-radius:9px;border:1px solid var(--line);background:rgba(0,0,0,.35);padding:0 10px;width:100%}
+select option{background:#1a0b0d}
+
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,70,80,.12)}
+.item:first-child{border-top:0}
+.item .grow{flex:1;min-width:0}
+.item .t{font-weight:600}
+.item .m{font-size:12px;color:var(--soft)}
+.badge{display:inline-block;font:700 10px/1 ui-monospace,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:6px;border:1px solid;margin-left:6px;vertical-align:1px}
+.b-ok{color:var(--ok);border-color:rgba(57,217,138,.5);background:rgba(57,217,138,.08)}
+.b-warn{color:var(--warn);border-color:rgba(255,177,59,.5);background:rgba(255,177,59,.07)}
+.b-bad{color:var(--bad);border-color:rgba(255,77,87,.55);background:rgba(255,77,87,.09)}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red-deep),var(--red));width:0;transition:width .5s}
+.bar.xp i{background:linear-gradient(90deg,#7c3aed,#ff4fa3)}
+.bar.hp i{background:linear-gradient(90deg,#ff8a00,#ff3b43)}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kpi{border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,.08);min-height:74px}
+.kpi .l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.kpi .v{font-size:22px;font-weight:700;line-height:1.2}
+.k1{background:linear-gradient(135deg,rgba(59,139,255,.35),rgba(59,139,255,.08))}
+.k2{background:linear-gradient(135deg,rgba(25,198,192,.35),rgba(25,198,192,.08))}
+.k3{background:linear-gradient(135deg,rgba(155,92,255,.35),rgba(155,92,255,.08))}
+.k4{background:linear-gradient(135deg,rgba(255,79,163,.35),rgba(255,79,163,.08))}
+
+#orbwrap{position:relative;height:210px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 50%,rgba(255,59,67,.2),transparent 65%),#0b0506}
+#orb{position:absolute;inset:0;width:100%;height:100%}
+#orbwrap img{position:absolute;left:50%;top:50%;width:84px;height:84px;transform:translate(-50%,-50%);filter:drop-shadow(0 0 14px rgba(255,59,67,.8))}
+#orbstatus{position:absolute;left:12px;bottom:8px;font:600 11px ui-monospace,Consolas,monospace;color:var(--soft)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px;box-shadow:0 0 8px var(--ok)}
+
+#log{height:200px;overflow-y:auto;padding:10px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--line)}
+.msg{margin:0 0 8px;padding:8px 10px;border-radius:10px;max-width:92%;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.me{margin-left:auto;background:rgba(255,59,67,.2)}
+.msg.bot{background:rgba(255,255,255,.06)}
+#chatform{display:flex;gap:8px;margin-top:8px}
+#chatform input{flex:1;min-width:0}
+.term{font:12px/1.5 ui-monospace,Consolas,monospace;background:rgba(0,0,0,.45);border:1px solid var(--line);border-radius:10px;padding:10px;height:130px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;color:#d7ffe8}
+#feed{height:150px;overflow:hidden;font-size:12.5px}
+#feed div{padding:4px 0;border-top:1px solid rgba(255,70,80,.1);animation:in .4s}
+#feed b{color:var(--red-hi)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rec{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bad);margin-right:6px;animation:blink 1s infinite}
+.rec.off{background:var(--muted);animation:none}
+@keyframes blink{50%{opacity:.25}}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--muted);text-align:left;font-weight:600;padding:4px 6px}
+td{padding:7px 6px;border-top:1px solid rgba(255,70,80,.12)}
+.fit{font-weight:700;color:var(--ok)}
+canvas.chart{width:100%;height:150px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--line)}
+#qr{width:132px;height:132px;image-rendering:pixelated;border-radius:8px;background:#fff}
+
+#rpg .hero{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-bottom:10px}
+#mon{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:rgba(0,0,0,.3);border:1px solid var(--line);margin-bottom:10px;position:relative;overflow:hidden}
+#mon .emoji{font-size:40px;transition:transform .15s}
+#mon.hit .emoji{transform:translateX(8px) rotate(8deg)}
+.dmg{position:absolute;right:14px;top:8px;font:800 20px ui-monospace,Consolas,monospace;color:var(--warn);animation:float 0.9s forwards;pointer-events:none}
+@keyframes float{to{transform:translateY(-26px);opacity:0}}
+#crit{position:fixed;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:60;font:900 clamp(40px,9vw,110px)/1 "Segoe UI",system-ui,sans-serif;color:#fff;text-shadow:0 0 30px var(--red),0 0 60px var(--red);background:radial-gradient(circle,rgba(255,59,67,.35),transparent 60%);animation:crit 1.4s forwards}
+@keyframes crit{0%{transform:scale(.6);opacity:0}15%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:0}}
+
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+#modal.on{display:flex}
+#mbox{width:min(640px,100%);max-height:92dvh;overflow:auto;background:#12080a;border:1px solid var(--line-hi);border-radius:14px;padding:16px;box-shadow:0 20px 80px rgba(0,0,0,.7)}
+#vid{aspect-ratio:16/9;border-radius:10px;background:radial-gradient(circle at 50% 40%,rgba(255,59,67,.35),#0a0405);display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;font-size:16px;margin:10px 0;border:1px solid var(--line)}
+#room{perspective:700px;height:260px;display:flex;align-items:center;justify-content:center;margin:10px 0}
+#cube{width:210px;height:150px;position:relative;transform-style:preserve-3d;transform:rotateX(-14deg) rotateY(-28deg);animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotateX(-14deg) rotateY(332deg)}}
+#cube div{position:absolute;inset:0;border:1px solid var(--red);background:rgba(255,59,67,.06)}
+#cube .f{transform:translateZ(105px)}#cube .b{transform:rotateY(180deg) translateZ(105px)}
+#cube .l{width:210px;transform:rotateY(-90deg) translateZ(105px)}#cube .r{width:210px;transform:rotateY(90deg) translateZ(105px)}
+#cube .fl{height:210px;top:auto;transform:rotateX(-90deg) translateZ(75px);background:rgba(255,59,67,.15)}
+.goal{position:absolute;left:50%;top:50%;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;background:rgba(255,213,63,.2);border:1px solid #ffd23f;color:#ffd23f;white-space:nowrap;animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{margin-top:-8px}}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--tabbar) + 16px);transform:translateX(-50%);background:#1c0a0d;border:1px solid var(--line-hi);padding:10px 16px;border-radius:10px;z-index:90;opacity:0;pointer-events:none;transition:opacity .25s;max-width:min(560px,92vw);text-align:center}
+#toast.on{opacity:1}
+footer.disc{font-size:11px;color:var(--muted);padding:2px 2px 10px}
+
+.arrow{display:none;position:fixed;top:50%;transform:translateY(-50%);z-index:40;width:40px;height:64px;border-radius:12px;border:1px solid var(--line-hi);background:rgba(10,4,5,.82);font-size:22px;font-weight:800;backdrop-filter:blur(6px)}
+#arr-l{left:4px}#arr-r{right:4px}
+.arrow[disabled]{opacity:.25}
+#tabbar{display:none}
+
+/* Phone and small windows: one screen at a time, side arrows and a bottom tab bar */
+@media (max-width:1099px){
+  :root{--tabbar:56px}
+  #track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:0;padding:0;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain}
+  #track::-webkit-scrollbar{display:none}
+  .screen{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;padding:12px 52px 24px 52px}
+  .screen-title{display:block;margin:0;font-size:20px;font-weight:300;letter-spacing:-.01em}
+  .screen-title b{color:var(--red)}
+  .arrow{display:block}
+  #tabbar{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;height:var(--tabbar);padding-bottom:env(safe-area-inset-bottom);background:rgba(10,4,5,.94);border-top:1px solid var(--line);z-index:35}
+  #tabbar button{border:0;background:none;color:var(--muted);font-weight:700;font-size:12px;letter-spacing:.06em}
+  #tabbar button.on{color:var(--red-hi);box-shadow:inset 0 -3px 0 var(--red)}
+  .clock,.hide-sm{display:none}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  header.top{padding:0 10px}
+}
+@media (max-width:600px){.hide-xs{display:none}header.top{gap:8px;padding:0 8px}.hbtn{padding:0 10px;font-size:12px}.pill{padding:5px 7px}}
+@media (max-width:420px){.screen{padding:10px 46px 24px 46px}.brand span{display:none}.arrow{width:36px}}
+@media (min-width:1100px) and (max-height:900px){#orbwrap{height:160px}#log{height:150px}}
+
+/* Highlight-all mode and tour spotlight */
+body.hl button:not(.arrow):not(#tabbar button){outline:2px dashed #ffd23f;outline-offset:2px;position:relative}
+body.hl button:not(#tabbar button)::before{counter-increment:hl;content:counter(hl);position:absolute;top:-9px;left:-9px;min-width:18px;height:18px;border-radius:9px;background:#ffd23f;color:#201300;font:800 10px/18px ui-monospace,monospace;text-align:center;z-index:5}
+#spot{position:fixed;z-index:80;border-radius:10px;border:2px solid #ffd23f;box-shadow:0 0 0 9999px rgba(0,0,0,.72),0 0 24px #ffd23f;pointer-events:none;display:none;transition:all .25s}
+#tip{position:fixed;z-index:85;width:min(340px,calc(100vw - 24px));background:#1c0a0d;border:1px solid #ffd23f;border-radius:12px;padding:14px;display:none;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+#tip h3{margin:0 0 4px;font-size:15px;color:#ffd23f}
+#tip p{margin:0 0 10px;color:var(--text)}
+#tip .n{font:700 11px ui-monospace,monospace;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#track{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="assets/logo.svg" alt="NEXEN logo"><span>NEX<b>EN</b></span></div>
+  <span class="pill hide-xs">DEMO BUILD</span>
+  <span class="pill" id="mode">SAMPLE DATA</span>
+  <div class="spacer"></div>
+  <span class="clock" id="clock"></span>
+  <button class="hbtn" id="hl-btn" type="button">Highlight<span class="hide-xs"> all</span></button>
+  <button class="hbtn" id="tour-btn" type="button" style="background:var(--red);color:#210407">▶ Tutorial</button>
+</header>
+
+<button class="arrow" id="arr-l" type="button" aria-label="Previous screen">‹</button>
+<button class="arrow" id="arr-r" type="button" aria-label="Next screen">›</button>
+
+<main id="track">
+  <!-- SCREEN 1: LAUNCH -->
+  <section class="screen" id="s0" aria-label="Launch">
+    <h1 class="screen-title"><b>1</b> · Launch</h1>
+    <div class="panel"><h2>Onboarding videos <small id="onb-sum"></small></h2><div id="onb"></div></div>
+    <div class="panel"><h2>Choose your industry <small>tap one</small></h2>
+      <div class="row" id="ind-chips" role="group" aria-label="Industries"></div>
+      <h2 style="margin-top:14px">Exact n8n workflows <small id="wf-sum"></small></h2><div id="wf-list"></div></div>
+    <div class="panel"><h2>Courses <small id="course-sum"></small></h2><div id="courses"></div></div>
+    <div class="panel"><h2>Monthly vote <small>new hustle, free for subscribers</small></h2><div id="votes"></div></div>
+    <div class="panel"><h2>Plan perks</h2>
+      <div class="row" id="plan-tabs"></div><ul id="perks" style="margin:10px 0;padding-left:18px"></ul>
+      <button class="btn solid" id="subscribe" type="button">Subscribe (demo, $0)</button></div>
+    <div class="panel"><h2>Workflow ROI <small id="roi-src"></small></h2>
+      <div class="row"><input id="roi-name" type="text" value="Link to Clips Pipeline" aria-label="Workflow name" style="flex:2 1 160px">
+      <input id="roi-earned" type="number" value="150" min="0" step="1" aria-label="Money earned" style="flex:1 1 80px" title="Earned">
+      <input id="roi-spent" type="number" value="2.5" min="0" step="0.5" aria-label="Money spent" style="flex:1 1 80px" title="Spent"></div>
+      <div class="row" style="margin-top:8px"><label class="note">Repeatability <input id="roi-rep" type="number" value="9" min="1" max="10" style="width:70px"></label>
+      <label class="note">Hours <input id="roi-hrs" type="number" value="0.5" min="0" step="0.25" style="width:80px"></label>
+      <button class="btn" id="roi-run" type="button">Score workflow</button></div>
+      <div id="roi-out" class="note" style="margin-top:8px">Earned, spent, repeatability and hours in. Scale, Hold or Kill out.</div></div>
+    <footer class="disc">Sample data for demonstration. Figures are not results or earnings claims.</footer>
+  </section>
+
+  <!-- SCREEN 2: MARVIN -->
+  <section class="screen" id="s1" aria-label="MARVIN">
+    <h1 class="screen-title"><b>2</b> · MARVIN</h1>
+    <div class="panel" style="padding:10px"><div id="orbwrap"><canvas id="orb"></canvas><img src="assets/logo.svg" alt=""><div id="orbstatus"><span class="dot"></span>MARVIN online · demo</div></div></div>
+    <div class="kpis">
+      <div class="kpi k1"><div class="l">Leads</div><div class="v" id="k-leads">0</div></div>
+      <div class="kpi k2"><div class="l">Clips</div><div class="v" id="k-clips">0</div></div>
+      <div class="kpi k3"><div class="l">Workflows live</div><div class="v" id="k-wf">0</div></div>
+      <div class="kpi k4"><div class="l">XP</div><div class="v" id="k-xp">0</div></div>
+    </div>
+    <div class="panel"><h2>Talk to MARVIN <button class="btn sm" id="voice" type="button" aria-pressed="false">🔇 Voice off</button></h2>
+      <div id="log" aria-live="polite"></div>
+      <div class="row" id="quick" style="margin-top:8px"></div>
+      <form id="chatform"><input id="chat-in" type="text" placeholder="Ask MARVIN…" aria-label="Message" autocomplete="off"><button class="btn solid" id="chat-send" type="submit">Send</button></form></div>
+    <div class="panel"><h2>Next action <small>one at a time</small></h2>
+      <div id="next-t" style="font-weight:700;font-size:15px"></div><div id="next-w" class="note" style="margin:2px 0 10px"></div>
+      <div class="row"><button class="btn ok" id="next-do" type="button">Do it</button><button class="btn" id="next-skip" type="button">Skip</button></div></div>
+    <div class="panel"><h2>Approvals <small>nothing leaves without your yes</small></h2><div id="appr"></div></div>
+    <div class="panel"><h2>Agents at work <button class="btn sm" id="rec-toggle" type="button"><span class="rec" id="rec-dot"></span><span id="rec-txt">Recording</span></button></h2><div id="feed" aria-live="off"></div></div>
+    <div class="panel"><h2>Run a workflow</h2>
+      <div class="row"><select id="wf-pick" aria-label="Installed workflow" style="flex:1 1 180px"></select><button class="btn solid" id="wf-run" type="button">Run</button></div>
+      <div class="term" id="wf-term" style="margin-top:8px">Install a workflow on screen 1, then run it here.</div></div>
+    <div class="panel"><h2>Brain search <small id="brain-src">vector DB</small></h2>
+      <form class="row" id="brain-form"><input id="brain-q" type="text" value="how do clips get scored" aria-label="Search the knowledge base" style="flex:1 1 180px"><button class="btn" id="brain-go" type="submit">Search</button></form>
+      <div id="brain-out" style="margin-top:8px"></div></div>
+  </section>
+
+  <!-- SCREEN 3: GROW -->
+  <section class="screen" id="s2" aria-label="Grow">
+    <h1 class="screen-title"><b>3</b> · Grow</h1>
+    <div class="panel" id="rpg"><h2>NEXEN RPG <small>PVE only · no PvP</small></h2>
+      <div class="hero"><div><div class="note">Level <b id="lvl">1</b></div><div class="bar xp"><i id="xpbar"></i></div></div>
+      <div><div class="note">Balance (sample) <b id="bal">$1,250.00</b></div><div class="bar hp"><i id="hpbar" style="width:100%"></i></div></div></div>
+      <div id="mon"><span class="emoji" id="mon-e">👾</span><div class="grow"><div id="mon-n" style="font-weight:700"></div><div class="note" id="mon-s"></div></div></div>
+      <div class="row"><button class="btn solid" id="atk" type="button">⚔ Attack task</button><button class="btn" id="dng" type="button">Next dungeon</button></div>
+      <h2 style="margin-top:14px">Login with your balance <small>demo only</small></h2>
+      <div class="row"><canvas id="qr" width="33" height="33" aria-label="Demo QR pattern"></canvas>
+      <div style="flex:1;min-width:150px"><button class="btn" id="qr-gen" type="button">Generate login QR</button>
+      <label class="btn sm" style="display:inline-flex;align-items:center;margin-top:6px;cursor:pointer">Upload balance screenshot<input id="shot" type="file" accept="image/*" class="sr"></label>
+      <div class="note" id="shot-n" style="margin-top:4px">Nothing is uploaded or stored in this demo.</div></div></div></div>
+    <div class="panel"><h2>Swarm scouts <small id="swarm-sum"></small></h2>
+      <div class="row" id="swarm-tabs"></div><div id="swarm-tbl" style="margin:8px 0"></div>
+      <button class="btn solid" id="swarm-run" type="button">Run swarm</button></div>
+    <div class="panel"><h2>Go global</h2>
+      <div class="row"><select id="tr-lang" aria-label="Language" style="flex:1 1 140px"></select><button class="btn" id="tr-go" type="button">Translate pitch</button></div>
+      <p id="tr-out" style="margin:10px 0 0;padding:10px;border-radius:10px;background:rgba(0,0,0,.3)"></p></div>
+    <div class="panel"><h2>Retention lab <small>A/B vs competitor</small></h2>
+      <canvas class="chart" id="ab" width="600" height="300"></canvas>
+      <div class="row" style="margin-top:8px"><button class="btn" id="ab-run" type="button">Run A/B test</button><span class="note" id="ab-out">Press run to compare viewer retention.</span></div></div>
+    <div class="panel"><h2>Roadmap <small>6 products</small></h2><div id="road"></div>
+      <button class="btn" id="vr-open" type="button" style="margin-top:8px">Preview VR room (2027)</button></div>
+    <div class="panel"><h2>Denizen <small>swarm supercharge</small></h2>
+      <div class="row"><button class="btn" id="den" type="button" aria-pressed="false">Denizen: off</button><span class="note" id="den-n">Doubles agent counts and feed speed.</span></div></div>
+  </section>
+</main>
+
+<nav id="tabbar" aria-label="Screens"><button type="button" data-go="0" class="on">LAUNCH</button><button type="button" data-go="1">MARVIN</button><button type="button" data-go="2">GROW</button></nav>
+
+<div id="modal" role="dialog" aria-modal="true"><div id="mbox"></div></div>
+<div id="crit">CRITICAL STRIKE!</div>
+<div id="spot"></div>
+<div id="tip"><div class="n" id="tip-n"></div><h3 id="tip-h"></h3><p id="tip-p"></p><div class="row"><button class="btn sm" id="tip-b" type="button">Back</button><button class="btn sm solid" id="tip-n2" type="button">Next</button><button class="btn sm" id="tip-x" type="button">Exit</button></div></div>
+<div id="toast" role="status"></div>
+<script src="sample-data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
